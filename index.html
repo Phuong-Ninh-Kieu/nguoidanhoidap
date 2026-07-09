@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>📋 Gửi câu hỏi</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: #eef2f7;
+            min-height: 100vh;
+            padding: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a3a6b, #2a5298);
+            color: white;
+            padding: 18px 20px 14px;
+            border-radius: 16px 16px 0 0;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .header p {
+            font-size: 13px;
+            opacity: 0.85;
+            margin-top: 3px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 0 0 16px 16px;
+            padding: 20px 18px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .form-group label .required {
+            color: #e74c3c;
+        }
+
+        .form-group label .optional {
+            color: #999;
+            font-weight: 400;
+            font-size: 12px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid #dce3ed;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: 0.2s;
+            background: #fafcfe;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #2a5298;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.12);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* Địa chỉ + Khu vực chung hàng */
+        .address-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 10px;
+        }
+
+        .address-row .form-group {
+            margin-bottom: 0;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1a3a6b, #2a5298);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 20px rgba(26, 58, 107, 0.3);
+            margin-top: 6px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 25px rgba(26, 58, 107, 0.4);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .success-screen {
+            display: none;
+            text-align: center;
+            padding: 30px 10px;
+        }
+
+        .success-screen .icon {
+            font-size: 56px;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .success-screen h2 {
+            color: #1a3a6b;
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+
+        .success-screen p {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .btn-new {
+            background: #e8edf5;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 30px;
+            font-weight: 600;
+            color: #1a3a6b;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        .btn-new:hover {
+            background: #d0dcee;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #1a3a6b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: 0.3s ease;
+            z-index: 999;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: #27ae60;
+        }
+
+        .toast.error {
+            background: #e74c3c;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        @media (max-width: 420px) {
+            body { padding: 8px; }
+            .card { padding: 16px 14px; }
+            .address-row { 
+                grid-template-columns: 1fr; 
+                gap: 0; 
+            }
+            .address-row .form-group { 
+                margin-bottom: 14px; 
+            }
+            .address-row .form-group:last-child { 
+                margin-bottom: 0; 
+            }
+            .header h1 { font-size: 18px; }
+            .form-row { gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Gửi câu hỏi</h1>
+            <p>Điền thông tin để gửi đến cơ quan chức năng</p>
+        </div>
+
+        <div class="card">
+            <form id="questionForm">
+                <!-- Họ tên + SĐT -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Họ tên <span class="required">*</span></label>
+                        <input type="text" id="fullName" placeholder="Nguyễn Văn A" required>
+                    </div>
+                    <div class="form-group">
+                        <label>SĐT <span class="required">*</span></label>
+                        <input type="tel" id="phone" placeholder="090 123 4567" required>
+                    </div>
+                </div>
+
+                <!-- Địa chỉ + Khu vực (chung hàng) -->
+                <div class="address-row">
+                    <div class="form-group">
+                        <label>Địa chỉ <span class="required">*</span></label>
+                        <input type="text" id="address" placeholder="Số nhà, đường, phường/xã" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Khu vực <span class="optional">(tự điền)</span></label>
+                        <input type="text" id="area" placeholder="VD: 1, 2, 3...">
+                    </div>
+                </div>
+
+                <!-- Lĩnh vực -->
+                <div class="form-group">
+                    <label>Lĩnh vực <span class="required">*</span></label>
+                    <select id="field" required>
+                        <option value="">-- Chọn --</option>
+                        <option value="Đất đai, nhà ở">Đất đai, nhà ở</option>
+                        <option value="Giao thông, xây dựng">Giao thông, xây dựng</option>
+                        <option value="Môi trường, vệ sinh">Môi trường, vệ sinh</option>
+                        <option value="Y tế, sức khỏe">Y tế, sức khỏe</option>
+                        <option value="Giáo dục, đào tạo">Giáo dục, đào tạo</option>
+                        <option value="Pháp lý, tư pháp">Pháp lý, tư pháp</option>
+                        <option value="An ninh, trật tự">An ninh, trật tự</option>
+                        <option value="Thủ tục hành chính">Thủ tục hành chính</option>
+                        <option value="Khác">Khác</option>
+                    </select>
+                </div>
+
+                <!-- Nội dung -->
+                <div class="form-group">
+                    <label>Nội dung <span class="required">*</span></label>
+                    <textarea id="question" placeholder="Nhập câu hỏi của bạn..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">📤 Gửi câu hỏi</button>
+            </form>
+
+            <div class="success-screen" id="successScreen">
+                <span class="icon">✅</span>
+                <h2>Gửi thành công!</h2>
+                <p>Câu hỏi đã được gửi đến cơ quan chức năng.</p>
+                <button class="btn-new" onclick="resetForm()">📝 Gửi câu hỏi mới</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // ========== FIREBASE CONFIG ==========
+        const firebaseConfig = {
+            apiKey: "AIzaSyCAn-dCRdVkbYZYuh_wWWKPe2-5_meQuBA",
+            authDomain: "hoidap-ff5ed.firebaseapp.com",
+            databaseURL: "https://hoidap-ff5ed-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "hoidap-ff5ed",
+            storageBucket: "hoidap-ff5ed.firebasestorage.app",
+            messagingSenderId: "747872918560",
+            appId: "1:747872918560:web:f9f0d5073d083a46e03045"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // ========== DOM ==========
+        const form = document.getElementById('questionForm');
+        const fullName = document.getElementById('fullName');
+        const phone = document.getElementById('phone');
+        const address = document.getElementById('address');
+        const area = document.getElementById('area');
+        const field = document.getElementById('field');
+        const questionText = document.getElementById('question');
+        const successScreen = document.getElementById('successScreen');
+        const submitBtn = document.getElementById('submitBtn');
+        const toast = document.getElementById('toast');
+
+        let toastTimeout = null;
+
+        // ========== SUBMIT ==========
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const name = fullName.value.trim();
+            const phoneVal = phone.value.trim();
+            const addressVal = address.value.trim();
+            const areaVal = area.value.trim();
+            const fieldVal = field.value;
+            const questionVal = questionText.value.trim();
+
+            if (!name || !phoneVal || !addressVal || !fieldVal || !questionVal) {
+                showToast('⚠️ Vui lòng điền đầy đủ thông tin!', 'error');
+                return;
+            }
+
+            const ref = database.ref('questions/public');
+            const newQ = {
+                fullName: name,
+                phone: phoneVal,
+                address: addressVal,
+                area: areaVal || '',
+                field: fieldVal,
+                question: questionVal,
+                created: new Date().toLocaleString('vi-VN'),
+                timestamp: Date.now()
+            };
+
+            submitBtn.disabled = true;
+            ref.push(newQ)
+                .then(() => {
+                    form.style.display = 'none';
+                    successScreen.style.display = 'block';
+                    showToast('✅ Gửi thành công!', 'success');
+                })
+                .catch(error => {
+                    showToast('❌ Lỗi: ' + error.message, 'error');
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                });
+        });
+
+        function resetForm() {
+            form.reset();
+            form.style.display = 'block';
+            successScreen.style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showToast(message, type = 'success') {
+            toast.textContent = message;
+            toast.className = 'toast show ' + type;
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2800);
+        }
+
+        console.log('📋 Form sẵn sàng!');
+    </script>
+</body>
+</html>
