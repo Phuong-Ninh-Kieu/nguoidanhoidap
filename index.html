@@ -116,7 +116,6 @@
             gap: 12px;
         }
 
-        /* Địa chỉ + Khu vực chung hàng */
         .address-row {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -233,6 +232,123 @@
             padding-right: 36px;
         }
 
+        /* Modal xác nhận */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-box {
+            background: white;
+            border-radius: 16px;
+            padding: 28px 24px 20px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-box .modal-icon {
+            font-size: 48px;
+            text-align: center;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .modal-box h3 {
+            text-align: center;
+            color: #1a3a6b;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .modal-box .modal-info {
+            background: #f5f7fb;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin: 12px 0 16px;
+            font-size: 14px;
+            color: #333;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .modal-box .modal-info p {
+            margin: 4px 0;
+            line-height: 1.6;
+        }
+
+        .modal-box .modal-info .label {
+            font-weight: 600;
+            color: #1a3a6b;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 4px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .modal-actions .btn-cancel {
+            background: #e8edf5;
+            color: #555;
+        }
+
+        .modal-actions .btn-cancel:hover {
+            background: #d5dde9;
+        }
+
+        .modal-actions .btn-confirm {
+            background: linear-gradient(135deg, #1a3a6b, #2a5298);
+            color: white;
+            box-shadow: 0 4px 15px rgba(26, 58, 107, 0.3);
+        }
+
+        .modal-actions .btn-confirm:hover {
+            transform: translateY(-1px);
+        }
+
+        .modal-actions .btn-confirm:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
         @media (max-width: 420px) {
             body { padding: 8px; }
             .card { padding: 16px 14px; }
@@ -248,6 +364,7 @@
             }
             .header h1 { font-size: 18px; }
             .form-row { gap: 10px; }
+            .modal-box { padding: 20px 16px; }
         }
     </style>
 </head>
@@ -260,7 +377,6 @@
 
         <div class="card">
             <form id="questionForm">
-                <!-- Họ tên + SĐT -->
                 <div class="form-row">
                     <div class="form-group">
                         <label>Họ tên <span class="required">*</span></label>
@@ -272,19 +388,17 @@
                     </div>
                 </div>
 
-                <!-- Địa chỉ + Khu vực (chung hàng) -->
                 <div class="address-row">
                     <div class="form-group">
                         <label>Địa chỉ <span class="required">*</span></label>
                         <input type="text" id="address" placeholder="Số nhà, đường, phường/xã" required>
                     </div>
                     <div class="form-group">
-                        <label>Khu vực <span class="optional">(tự điền)</span></label>
-                        <input type="text" id="area" placeholder="VD: 1, 2, 3...">
+                        <label>Khu vực <span class="required">*</span></label>
+                        <input type="text" id="area" placeholder="VD: 1, 2, 3..." required>
                     </div>
                 </div>
 
-                <!-- Lĩnh vực -->
                 <div class="form-group">
                     <label>Lĩnh vực <span class="required">*</span></label>
                     <select id="field" required>
@@ -301,7 +415,6 @@
                     </select>
                 </div>
 
-                <!-- Nội dung -->
                 <div class="form-group">
                     <label>Nội dung <span class="required">*</span></label>
                     <textarea id="question" placeholder="Nhập câu hỏi của bạn..." required></textarea>
@@ -315,6 +428,21 @@
                 <h2>Gửi thành công!</h2>
                 <p>Câu hỏi đã được gửi đến cơ quan chức năng.</p>
                 <button class="btn-new" onclick="resetForm()">📝 Gửi câu hỏi mới</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal xác nhận -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-box">
+            <span class="modal-icon">📋</span>
+            <h3>Xác nhận gửi câu hỏi</h3>
+            <div class="modal-info" id="modalInfo">
+                <!-- Dữ liệu sẽ được hiển thị ở đây -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" id="modalCancel">🔙 Quay lại</button>
+                <button class="btn-confirm" id="modalConfirm">✅ Xác nhận gửi</button>
             </div>
         </div>
     </div>
@@ -348,9 +476,39 @@
         const submitBtn = document.getElementById('submitBtn');
         const toast = document.getElementById('toast');
 
-        let toastTimeout = null;
+        // Modal
+        const modal = document.getElementById('confirmModal');
+        const modalInfo = document.getElementById('modalInfo');
+        const modalConfirm = document.getElementById('modalConfirm');
+        const modalCancel = document.getElementById('modalCancel');
 
-        // ========== SUBMIT ==========
+        let toastTimeout = null;
+        let pendingData = null; // Lưu dữ liệu đang chờ xác nhận
+
+        // ========== Lấy thông tin hiển thị trong modal ==========
+        function buildModalInfo(data) {
+            const fieldNames = {
+                'Đất đai, nhà ở': 'Đất đai, nhà ở',
+                'Giao thông, xây dựng': 'Giao thông, xây dựng',
+                'Môi trường, vệ sinh': 'Môi trường, vệ sinh',
+                'Y tế, sức khỏe': 'Y tế, sức khỏe',
+                'Giáo dục, đào tạo': 'Giáo dục, đào tạo',
+                'Pháp lý, tư pháp': 'Pháp lý, tư pháp',
+                'An ninh, trật tự': 'An ninh, trật tự',
+                'Thủ tục hành chính': 'Thủ tục hành chính',
+                'Khác': 'Khác'
+            };
+            return `
+                <p><span class="label">👤 Họ tên:</span> ${data.fullName}</p>
+                <p><span class="label">📞 SĐT:</span> ${data.phone}</p>
+                <p><span class="label">📍 Địa chỉ:</span> ${data.address}</p>
+                <p><span class="label">📌 Khu vực:</span> ${data.area}</p>
+                <p><span class="label">📂 Lĩnh vực:</span> ${fieldNames[data.field] || data.field}</p>
+                <p><span class="label">📝 Nội dung:</span> ${data.question}</p>
+            `;
+        }
+
+        // ========== SUBMIT - Mở modal thay vì gửi trực tiếp ==========
         form.addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -361,45 +519,85 @@
             const fieldVal = field.value;
             const questionVal = questionText.value.trim();
 
-            if (!name || !phoneVal || !addressVal || !fieldVal || !questionVal) {
+            if (!name || !phoneVal || !addressVal || !areaVal || !fieldVal || !questionVal) {
                 showToast('⚠️ Vui lòng điền đầy đủ thông tin!', 'error');
                 return;
             }
 
-            const ref = database.ref('questions/public');
-            const newQ = {
+            // Lưu dữ liệu tạm
+            pendingData = {
                 fullName: name,
                 phone: phoneVal,
                 address: addressVal,
-                area: areaVal || '',
+                area: areaVal,
                 field: fieldVal,
-                question: questionVal,
+                question: questionVal
+            };
+
+            // Hiển thị modal
+            modalInfo.innerHTML = buildModalInfo(pendingData);
+            modal.classList.add('show');
+            modalConfirm.disabled = false;
+        });
+
+        // ========== Xác nhận gửi ==========
+        modalConfirm.addEventListener('click', function() {
+            if (!pendingData) return;
+
+            modalConfirm.disabled = true;
+
+            const ref = database.ref('questions/public');
+            const newQ = {
+                fullName: pendingData.fullName,
+                phone: pendingData.phone,
+                address: pendingData.address,
+                area: pendingData.area,
+                field: pendingData.field,
+                question: pendingData.question,
                 created: new Date().toLocaleString('vi-VN'),
                 timestamp: Date.now()
             };
 
-            submitBtn.disabled = true;
             ref.push(newQ)
                 .then(() => {
+                    modal.classList.remove('show');
                     form.style.display = 'none';
                     successScreen.style.display = 'block';
                     showToast('✅ Gửi thành công!', 'success');
+                    pendingData = null;
                 })
                 .catch(error => {
                     showToast('❌ Lỗi: ' + error.message, 'error');
-                })
-                .finally(() => {
-                    submitBtn.disabled = false;
+                    modalConfirm.disabled = false;
                 });
         });
 
+        // ========== Hủy ==========
+        modalCancel.addEventListener('click', function() {
+            modal.classList.remove('show');
+            pendingData = null;
+            modalConfirm.disabled = false;
+        });
+
+        // ========== Đóng modal khi click bên ngoài ==========
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+                pendingData = null;
+                modalConfirm.disabled = false;
+            }
+        });
+
+        // ========== Reset form ==========
         function resetForm() {
             form.reset();
             form.style.display = 'block';
             successScreen.style.display = 'none';
+            pendingData = null;
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // ========== Toast ==========
         function showToast(message, type = 'success') {
             toast.textContent = message;
             toast.className = 'toast show ' + type;
