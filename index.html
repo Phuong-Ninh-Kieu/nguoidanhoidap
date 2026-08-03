@@ -121,14 +121,12 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
         }
 
-        /* Khung CÂU HỎI */
         .section-question { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px; }
         .section-title-question { font-size: 13px; font-weight: 700; color: #1e40af; text-transform: uppercase; margin-bottom: 8px; }
         .question-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; border-bottom: 1px dashed #cbd5e1; padding-bottom: 6px; }
         .question-detail { font-size: 13px; color: #334155; margin-bottom: 8px; }
         .question-content { background: #ffffff; padding: 10px 12px; border-radius: 8px; font-size: 14px; color: var(--text-main); margin-bottom: 10px; border-left: 4px solid var(--primary); border: 1px solid #e2e8f0; }
 
-        /* Khung CÂU TRẢ LỜI */
         .section-answer { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-md); padding: 14px; }
         .section-title-answer { font-size: 13px; font-weight: 700; color: #166534; text-transform: uppercase; margin-bottom: 10px; }
         .existing-answer-box { background: #ffffff; border: 1px solid #a7f3d0; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
@@ -372,7 +370,6 @@
         const toast = document.getElementById('toast');
         const fileInput = document.getElementById('fileInput');
         const fileList = document.getElementById('fileList');
-        const fileUploadArea = document.getElementById('fileUploadArea');
         const modal = document.getElementById('confirmModal');
         const modalInfo = document.getElementById('modalInfo');
         const modalConfirm = document.getElementById('modalConfirm');
@@ -515,28 +512,66 @@
             }
         }
 
-        // Hàm tải tệp thông minh qua Blob để vượt qua lỗi chặn CORS của trình duyệt
-        async function downloadFileFromUrl(url, fileName) {
-            showToast('⏳ Đang chuẩn bị tải tệp...', 'success');
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Network response was not ok');
-                const blob = await response.blob();
-                const blobUrl = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = blobUrl;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(blobUrl);
-                document.body.removeChild(a);
-                showToast('✅ Tải tệp thành công!', 'success');
-            } catch (err) {
-                // Fallback mở tab mới nếu fetch bị từ chối hẳn
-                window.open(url, '_blank');
-            }
+        // Tải tệp thông minh qua GitHub API Content để tránh hoàn toàn lỗi 404 và Failed to fetch trên kho Private
+        async function downloadFileFromPath(ghPath, fileName) {
+    showToast('⏳ Đang tải tệp xuống...', 'success');
+    try {
+        if (!githubConfig || !githubConfig.token) {
+            throw new Error('Chưa cấu hình GitHub Token');
         }
+        
+        // Gọi GitHub API với Accept header là application/vnd.github.v3+json để nhận JSON chứa nội dung base64 chuẩn
+        const res = await fetch(`https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${encodeURI(ghPath)}`, {
+            headers: {
+                'Authorization': 'token ' + githubConfig.token,
+                'Accept': 'application/vnd.github.v3+json'
+            }
+        });
+        
+        if (!res.ok) throw new Error('Không thể tải tệp (HTTP ' + res.status + ')');
+        const data = await res.json();
+        
+        if (!data.content) throw new Error('Dữ liệu tệp trống hoặc không hợp lệ.');
+
+        // Giải mã nội dung base64 từ GitHub (xử lý an toàn với ký tự tiếng Việt/Unicode)
+        const cleanedContent = data.content.replace(/\s/g, '');
+        const binaryString = atob(cleanedContent);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        
+        // Tự động nhận diện định dạng MIME type để trình duyệt dễ dàng hiển thị/đọc
+        let mimeType = 'application/octet-stream';
+        const lowerName = fileName.toLowerCase();
+        if (lowerName.endsWith('.pdf')) mimeType = 'application/pdf';
+        else if (lowerName.endsWith('.png')) mimeType = 'image/png';
+        else if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) mimeType = 'image/jpeg';
+        else if (lowerName.endsWith('.txt')) mimeType = 'text/plain;charset=utf-8';
+        else if (lowerName.endsWith('.doc')) mimeType = 'application/msword';
+        else if (lowerName.endsWith('.docx')) mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+
+        const blob = new Blob([bytes], { type: mimeType });
+        const blobUrl = window.URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = blobUrl;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        
+        setTimeout(() => {
+            window.URL.revokeObjectURL(blobUrl);
+            document.body.removeChild(a);
+        }, 100);
+
+        showToast('✅ Tải và mở tệp thành công!', 'success');
+    } catch (err) {
+        showToast('❌ ' + err.message, 'error');
+    }
+}
 
         form.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -596,7 +631,8 @@
             let qFiles = '';
             if (q.files) {
                 q.files.forEach(f => {
-                    qFiles += `<button type="button" class="file-link" onclick="downloadFileFromUrl('${f.url}', '${f.name}')">📥 Tải về: ${f.name}</button>`;
+                    let pathParam = f.ghPath || f.url.split('/main/')[1] || '';
+                    qFiles += `<button type="button" class="file-link" onclick="downloadFileFromPath('${pathParam}', '${f.name}')">📥 Tải về: ${f.name}</button>`;
                 });
             }
 
@@ -609,13 +645,13 @@
             if (allAnsFiles.length === 0 && (q.answeredOnPath || q.replyGhPath)) {
                 let path = q.answeredOnPath || q.replyGhPath;
                 let fname = q.answerFileName || q.replyFileName || path.split('/').pop();
-                let fUrl = `https://raw.githubusercontent.com/${q.githubRepo || githubConfig.owner + '/' + githubConfig.repo}/${githubConfig.branch || 'main'}/${encodeURI(path)}`;
-                allAnsFiles.push({ name: fname, url: fUrl });
+                allAnsFiles.push({ name: fname, ghPath: path });
             }
 
             if (allAnsFiles.length > 0) {
                 allAnsFiles.forEach(f => {
-                    ansFilesHtml += `<button type="button" class="answer-file-link" onclick="downloadFileFromUrl('${f.url}', '${f.name}')">📥 Tải về: ${f.name}</button>`;
+                    let pathParam = f.ghPath || f.url.split('/main/')[1] || '';
+                    ansFilesHtml += `<button type="button" class="answer-file-link" onclick="downloadFileFromPath('${pathParam}', '${f.name}')">📥 Tải về: ${f.name}</button>`;
                 });
             }
 
