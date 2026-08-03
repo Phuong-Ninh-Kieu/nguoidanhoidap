@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📋 Gửi câu hỏi</title>
+    <title>📋 Hệ thống Hỏi & Đáp</title>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -28,9 +28,7 @@
         }
 
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            margin: 0; padding: 0; box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
@@ -46,11 +44,7 @@
             line-height: 1.5;
         }
 
-        .container {
-            width: 100%;
-            max-width: 520px;
-            margin: 0 auto;
-        }
+        .container { width: 100%; max-width: 580px; margin: 0 auto; }
 
         .card {
             background: var(--surface);
@@ -63,489 +57,163 @@
         .header {
             background: linear-gradient(135deg, #1e3a8a, #3b82f6);
             color: #ffffff;
-            padding: 24px 20px;
+            padding: 24px 20px 16px;
             text-align: center;
-            position: relative;
         }
 
-        .header h1 {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+        .header h1 { font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .header p { font-size: 13px; opacity: 0.9; margin-top: 4px; }
+
+        .nav-tabs {
+            display: flex; background: rgba(0, 0, 0, 0.15);
+            padding: 4px; border-radius: 12px; margin-top: 16px;
         }
 
-        .header p {
-            font-size: 13px;
-            opacity: 0.9;
-            margin-top: 4px;
-            font-weight: 400;
+        .tab-btn {
+            flex: 1; padding: 10px 14px; background: transparent;
+            color: rgba(255, 255, 255, 0.8); border: none; font-size: 14px;
+            font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
         }
+        .tab-btn.active { background: #ffffff; color: var(--primary-dark); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); }
 
-        .card-body {
-            padding: 20px 16px;
-        }
-
-        .top-actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 16px;
-        }
+        .card-body { padding: 20px 16px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .top-actions { display: flex; justify-content: flex-end; margin-bottom: 16px; }
 
         .btn-ghost {
-            background: #f1f5f9;
-            color: var(--text-muted);
-            border: none;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-weight: 500;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
+            background: #f1f5f9; color: var(--text-muted); border: none;
+            padding: 6px 12px; border-radius: 20px; font-weight: 500; font-size: 12px;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
         }
 
-        .btn-ghost:active {
-            background: #e2e8f0;
-            transform: scale(0.97);
-        }
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+        @media (min-width: 480px) { .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } }
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 14px;
-        }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-weight: 600; font-size: 13px; color: #334155; display: flex; justify-content: space-between; }
+        .form-group label .required { color: var(--danger); margin-left: 2px; }
+        .form-group label .optional { color: var(--text-muted); font-weight: 400; font-size: 11px; }
 
-        @media (min-width: 480px) {
-            .form-grid-2 {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 12px;
-            }
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            font-size: 13px;
-            color: #334155;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .form-group label .required {
-            color: var(--danger);
-            margin-left: 2px;
-        }
-
-        .form-group label .optional {
-            color: var(--text-muted);
-            font-weight: 400;
-            font-size: 11px;
-        }
-
-        /* Đảm bảo font-size 16px trên mobile để Safari không auto-zoom */
         .form-control {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-md);
-            font-size: 16px;
-            color: var(--text-main);
-            background: #ffffff;
-            transition: all 0.2s ease;
-            outline: none;
-            -webkit-appearance: none;
-            appearance: none;
+            width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
+            border-radius: var(--radius-md); font-size: 16px; color: var(--text-main);
+            background: #ffffff; outline: none;
         }
-
-        @media (min-width: 640px) {
-            .form-control {
-                font-size: 14px;
-                padding: 10px 12px;
-            }
-        }
-
-        .form-control:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-        }
-
-        textarea.form-control {
-            min-height: 110px;
-            resize: vertical;
-            line-height: 1.5;
-        }
+        @media (min-width: 640px) { .form-control { font-size: 14px; padding: 10px 12px; } }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+        textarea.form-control { min-height: 100px; resize: vertical; }
 
         select.form-control {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%3C475569' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-            padding-right: 36px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px;
         }
 
-        /* Custom File Upload UI */
-        .attachment-container {
-            border: 1.5px dashed var(--border);
-            border-radius: var(--radius-md);
-            padding: 12px;
-            background: #f8fafc;
-            transition: all 0.2s ease;
+        .search-box { display: flex; gap: 8px; margin-bottom: 20px; }
+        .btn-search {
+            background: var(--primary); color: white; border: none; padding: 0 18px;
+            border-radius: var(--radius-md); font-weight: 600; font-size: 14px; cursor: pointer; white-space: nowrap;
         }
 
-        .attachment-container.dragover {
-            border-color: var(--primary);
-            background: var(--primary-light);
+        .question-card-wrapper {
+            background: #ffffff; border: 1.5px solid var(--border);
+            border-radius: var(--radius-lg); padding: 16px; margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
         }
 
-        .attachment-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        /* Khung CÂU HỎI */
+        .section-question { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px; }
+        .section-title-question { font-size: 13px; font-weight: 700; color: #1e40af; text-transform: uppercase; margin-bottom: 8px; }
+        .question-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; border-bottom: 1px dashed #cbd5e1; padding-bottom: 6px; }
+        .question-detail { font-size: 13px; color: #334155; margin-bottom: 8px; }
+        .question-content { background: #ffffff; padding: 10px 12px; border-radius: 8px; font-size: 14px; color: var(--text-main); margin-bottom: 10px; border-left: 4px solid var(--primary); border: 1px solid #e2e8f0; }
 
-        .attachment-hint {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
+        /* Khung CÂU TRẢ LỜI */
+        .section-answer { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-md); padding: 14px; }
+        .section-title-answer { font-size: 13px; font-weight: 700; color: #166534; text-transform: uppercase; margin-bottom: 10px; }
+        .existing-answer-box { background: #ffffff; border: 1px solid #a7f3d0; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+        .answer-text { font-size: 14px; color: #14532d; white-space: pre-line; line-height: 1.5; }
 
-        .btn-add-file {
-            background: #ffffff;
-            color: var(--primary);
-            border: 1px solid var(--border);
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        .file-list-box { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 12px; margin-top: 8px; }
+        .file-link, .answer-file-link {
+            display: inline-flex; align-items: center; gap: 6px; color: #1e40af; font-weight: 500;
+            text-decoration: none; background: #eff6ff; padding: 8px 12px; border-radius: 6px;
+            margin: 4px 0; border: 1px solid #bfdbfe; width: 100%; font-size: 12px; cursor: pointer;
         }
+        .answer-file-link { color: #166534; background: #f0fdf4; border-color: #bbf7d0; }
+        .file-link:hover { background: #dbeafe; }
+        .answer-file-link:hover { background: #dcfce7; }
 
-        .btn-add-file:active {
-            background: #f1f5f9;
-            transform: scale(0.97);
-        }
+        .attachment-container { border: 1.5px dashed var(--border); border-radius: var(--radius-md); padding: 12px; background: #ffffff; }
+        .attachment-header { display: flex; justify-content: space-between; align-items: center; }
+        .attachment-hint { font-size: 12px; color: var(--text-muted); }
+        .btn-add-file { background: #ffffff; color: var(--primary); border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
 
-        .file-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .file-item {
-            background: #ffffff;
-            border-radius: 8px;
-            padding: 8px 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 12px;
-            border: 1px solid var(--border);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-        }
-
-        .file-item .file-preview {
-            width: 36px;
-            height: 36px;
-            border-radius: 6px;
-            object-fit: cover;
-            border: 1px solid var(--border);
-            flex-shrink: 0;
-            background: #f1f5f9;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
-
-        .file-item .file-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .file-item .file-name {
-            font-weight: 600;
-            color: var(--text-main);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .file-item .file-meta {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 2px;
-        }
-
-        .file-item .file-size {
-            color: var(--text-muted);
-            font-size: 11px;
-        }
-
-        .file-item .file-status {
-            font-size: 11px;
-            font-weight: 500;
-            color: var(--primary);
-        }
-
+        .file-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .file-item { background: #ffffff; border-radius: 8px; padding: 8px 10px; display: flex; align-items: center; gap: 10px; font-size: 12px; border: 1px solid var(--border); }
+        .file-item .file-info { flex: 1; min-width: 0; }
+        .file-item .file-name { font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-item .file-status { font-size: 11px; font-weight: 500; color: var(--primary); }
         .file-item .file-status.done { color: var(--success); }
-        .file-item .file-status.error { color: var(--danger); }
 
-        .file-item .file-remove {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .file-item .file-remove:hover {
-            color: var(--danger);
-            background: #fef2f2;
-        }
-
-        /* Buttons */
         .btn-submit {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            border-radius: var(--radius-md);
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            width: 100%; padding: 12px; background: linear-gradient(135deg, #16a34a, #15803d);
+            color: white; border: none; border-radius: var(--radius-md); font-size: 15px; font-weight: 600;
+            cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
 
-        .btn-submit:active {
-            transform: scale(0.98);
-            box-shadow: none;
-        }
+        .success-screen { display: none; text-align: center; padding: 32px 16px; }
+        .success-screen .icon-wrap { width: 64px; height: 64px; background: #dcfce7; color: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 16px; }
+        .btn-new { background: var(--primary-light); border: 1px solid var(--border-focus); padding: 12px 24px; border-radius: 20px; font-weight: 600; color: var(--primary-dark); cursor: pointer; }
 
-        .btn-submit:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Success Screen */
-        .success-screen {
-            display: none;
-            text-align: center;
-            padding: 32px 16px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .success-screen .icon-wrap {
-            width: 64px;
-            height: 64px;
-            background: #dcfce7;
-            color: var(--success);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            margin: 0 auto 16px;
-        }
-
-        .success-screen h2 {
-            color: var(--text-main);
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .success-screen p {
-            color: var(--text-muted);
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        .btn-new {
-            background: var(--primary-light);
-            border: 1px solid var(--border-focus);
-            padding: 12px 24px;
-            border-radius: 20px;
-            font-weight: 600;
-            color: var(--primary-dark);
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
-        }
-
-        .btn-new:active {
-            transform: scale(0.97);
-        }
-
-        /* Toast Notifications */
         .toast {
-            position: fixed;
-            top: 16px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-100px);
-            background: #1e293b;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 30px;
-            font-weight: 500;
-            font-size: 13px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 9999;
-            width: calc(100% - 32px);
-            max-width: 400px;
-            text-align: center;
+            position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            background: #1e293b; color: white; padding: 12px 20px; border-radius: 30px;
+            font-weight: 500; font-size: 13px; opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 9999; width: calc(100% - 32px); max-width: 400px; text-align: center;
         }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
         .toast.success { background: #065f46; color: #ecfdf5; }
         .toast.error { background: #991b1b; color: #fef2f2; }
 
-        /* Modals Modern UI */
         .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: flex-end; /* Bottom sheet on mobile */
-            padding: 0;
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 1000;
+            justify-content: center; align-items: flex-end;
         }
-
-        @media (min-width: 480px) {
-            .modal-overlay {
-                align-items: center;
-                padding: 16px;
-            }
-        }
-
+        @media (min-width: 480px) { .modal-overlay { align-items: center; padding: 16px; } }
         .modal-overlay.show { display: flex; }
 
         .modal-box {
-            background: white;
-            border-radius: 20px 20px 0 0;
-            padding: 24px 20px 24px;
-            width: 100%;
-            max-width: 460px;
-            box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.1);
-            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            max-height: 85vh;
-            overflow-y: auto;
+            background: white; border-radius: 20px 20px 0 0; padding: 24px 20px;
+            width: 100%; max-width: 460px; box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.1);
+            max-height: 85vh; overflow-y: auto;
         }
-
-        @media (min-width: 480px) {
-            .modal-box {
-                border-radius: var(--radius-lg);
-                box-shadow: var(--shadow);
-                animation: zoomIn 0.2s ease;
-            }
-        }
-
-        .modal-box h3 {
-            text-align: center;
-            color: var(--text-main);
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .modal-info {
-            background: #f8fafc;
-            border-radius: var(--radius-md);
-            padding: 14px;
-            margin: 12px 0 16px;
-            font-size: 13px;
-            border: 1px solid var(--border);
-        }
-
+        @media (min-width: 480px) { .modal-box { border-radius: var(--radius-lg); } }
+        .modal-box h3 { text-align: center; color: var(--text-main); font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+        .modal-info { background: #f8fafc; border-radius: var(--radius-md); padding: 14px; margin: 12px 0 16px; font-size: 13px; border: 1px solid var(--border); }
         .modal-info p { margin-bottom: 6px; line-height: 1.5; color: #334155; }
-        .modal-info p:last-child { margin-bottom: 0; }
         .modal-info .label { font-weight: 600; color: var(--text-main); }
-        .modal-info .file-attachments { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
-        .modal-info .file-preview-mini { display: inline-block; margin: 2px; border-radius: 4px; border: 1px solid var(--border); width: 44px; height: 44px; object-fit: cover; }
-
         .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
-        .modal-actions button { flex: 1; padding: 12px; border: none; border-radius: var(--radius-md); font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+        .modal-actions button { flex: 1; padding: 12px; border: none; border-radius: var(--radius-md); font-weight: 600; font-size: 14px; cursor: pointer; }
         .modal-actions .btn-cancel { background: #f1f5f9; color: var(--text-muted); }
-        .modal-actions .btn-confirm { background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3); }
+        .modal-actions .btn-confirm { background: var(--primary); color: white; }
 
-        .input-base {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-md);
-            font-size: 14px;
-            outline: none;
-        }
-
-        .input-base:focus {
-            border-color: var(--primary);
-        }
-
+        .input-base { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-md); font-size: 14px; outline: none; }
         .gh-config-status { display: flex; align-items: center; gap: 10px; padding: 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-md); margin-bottom: 12px; }
-        .gh-config-status .status-icon { font-size: 18px; }
-        .gh-config-status .status-text { font-weight: 600; color: #166534; font-size: 13px; }
-        .gh-config-status .status-sub { font-size: 11px; color: #15803d; word-break: break-all; }
-        .gh-config-fields.hidden { display: none !important; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-
-        /* Tối ưu hóa thêm cho điện thoại nhỏ */
-        @media (max-width: 360px) {
-            body { padding: 0; }
-            .card { border-radius: 0; border: none; }
-            .header { padding: 18px 14px; }
-            .card-body { padding: 14px 12px; }
-        }
+        .gh-config-status.hidden { display: none !important; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="card">
             <div class="header">
-                <h1>📋 Gửi câu hỏi</h1>
-                <p>Điền thông tin để gửi phản ánh đến cơ quan chức năng</p>
+                <h1>📋 Cổng Tiếp Nhận & Trả Lời</h1>
+                <p>Gửi ý kiến phản ánh hoặc tra cứu phản hồi</p>
+                <div class="nav-tabs">
+                    <button type="button" class="tab-btn active" onclick="switchTab('tab-submit')">📝 Gửi câu hỏi</button>
+                    <button type="button" class="tab-btn" onclick="switchTab('tab-answer')">💬 Trả lời câu hỏi</button>
+                </div>
             </div>
 
             <div class="card-body">
@@ -553,82 +221,92 @@
                     <button type="button" onclick="openGithubConfig()" class="btn-ghost">🐙 Cấu hình GitHub</button>
                 </div>
 
-                <form id="questionForm">
-                    <div class="form-grid">
-                        <div class="form-grid-2">
-                            <div class="form-group">
-                                <label for="fullName">Họ tên <span class="required">*</span></label>
-                                <input type="text" id="fullName" class="form-control" placeholder="Nguyễn Văn A" required autocomplete="name">
-                            </div>
-                            <div class="form-group">
-                                <label for="phone">Số điện thoại <span class="required">*</span></label>
-                                <input type="tel" id="phone" class="form-control" placeholder="090 123 4567" required autocomplete="tel">
-                            </div>
-                        </div>
-
-                        <div class="form-grid-2">
-                            <div class="form-group">
-                                <label for="address">Địa chỉ <span class="required">*</span></label>
-                                <input type="text" id="address" class="form-control" placeholder="Số nhà, tên đường..." required>
-                            </div>
-                            <div class="form-group">
-                                <label for="area">Khu vực / Phường <span class="required">*</span></label>
-                                <input type="text" id="area" class="form-control" placeholder="VD: Khu vực 1" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="field">Lĩnh vực <span class="required">*</span></label>
-                            <select id="field" class="form-control" required>
-                                <option value="">-- Chọn lĩnh vực --</option>
-                                <option value="Đất đai, nhà ở">Đất đai, nhà ở</option>
-                                <option value="Giao thông, xây dựng">Giao thông, xây dựng</option>
-                                <option value="Môi trường, vệ sinh">Môi trường, vệ sinh</option>
-                                <option value="Y tế, sức khỏe">Y tế, sức khỏe</option>
-                                <option value="Giáo dục, đào tạo">Giáo dục, đào tạo</option>
-                                <option value="Pháp lý, tư pháp">Pháp lý, tư pháp</option>
-                                <option value="An ninh, trật tự">An ninh, trật tự</option>
-                                <option value="Thủ tục hành chính">Thủ tục hành chính</option>
-                                <option value="Khác">Khác</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="question">Nội dung câu hỏi <span class="required">*</span></label>
-                            <textarea id="question" class="form-control" placeholder="Nhập chi tiết nội dung câu hỏi hoặc ý kiến của bạn..." required></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Tệp đính kèm <span class="optional">(Tối đa 25MB)</span></label>
-                            <div class="attachment-container" id="fileUploadArea">
-                                <div class="attachment-header">
-                                    <span class="attachment-hint">Chọn tệp hình ảnh, tài liệu</span>
-                                    <button type="button" class="btn-add-file" onclick="fileInput.click()">
-                                        ➕ Thêm tệp
-                                    </button>
+                <!-- TAB 1: GỬI CÂU HỎI -->
+                <div id="tab-submit" class="tab-content active">
+                    <form id="questionForm">
+                        <div class="form-grid">
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label for="fullName">Họ tên <span class="required">*</span></label>
+                                    <input type="text" id="fullName" class="form-control" placeholder="Nguyễn Văn A" required>
                                 </div>
-                                <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.txt" style="display:none;">
-                                <div class="file-list" id="fileList"></div>
+                                <div class="form-group">
+                                    <label for="phone">Số điện thoại <span class="required">*</span></label>
+                                    <input type="tel" id="phone" class="form-control" placeholder="090 123 4567" required>
+                                </div>
                             </div>
+
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label for="address">Địa chỉ <span class="required">*</span></label>
+                                    <input type="text" id="address" class="form-control" placeholder="Số nhà, tên đường..." required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="area">Khu vực / Phường <span class="required">*</span></label>
+                                    <input type="text" id="area" class="form-control" placeholder="VD: Khu vực 1" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="field">Lĩnh vực <span class="required">*</span></label>
+                                <select id="field" class="form-control" required>
+                                    <option value="">-- Chọn lĩnh vực --</option>
+                                    <option value="Đất đai, nhà ở">Đất đai, nhà ở</option>
+                                    <option value="Giao thông, xây dựng">Giao thông, xây dựng</option>
+                                    <option value="Môi trường, vệ sinh">Môi trường, vệ sinh</option>
+                                    <option value="Y tế, sức khỏe">Y tế, sức khỏe</option>
+                                    <option value="Giáo dục, đào tạo">Giáo dục, đào tạo</option>
+                                    <option value="Pháp lý, tư pháp">Pháp lý, tư pháp</option>
+                                    <option value="An ninh, trật tự">An ninh, trật tự</option>
+                                    <option value="Thủ tục hành chính">Thủ tục hành chính</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="question">Nội dung câu hỏi <span class="required">*</span></label>
+                                <textarea id="question" class="form-control" placeholder="Nhập chi tiết nội dung..." required></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Tệp đính kèm <span class="optional">(Tối đa 25MB)</span></label>
+                                <div class="attachment-container" id="fileUploadArea">
+                                    <div class="attachment-header">
+                                        <span class="attachment-hint">Chọn tệp hình ảnh, tài liệu</span>
+                                        <button type="button" class="btn-add-file" onclick="fileInput.click()">➕ Thêm tệp</button>
+                                    </div>
+                                    <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.txt" style="display:none;">
+                                    <div class="file-list" id="fileList"></div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark));">
+                                📤 Gửi câu hỏi
+                            </button>
                         </div>
+                    </form>
 
-                        <button type="submit" class="btn-submit" id="submitBtn">
-                            📤 Gửi câu hỏi
-                        </button>
+                    <div class="success-screen" id="successScreen">
+                        <div class="icon-wrap">✓</div>
+                        <h2>Gửi thành công!</h2>
+                        <p>Câu hỏi và tệp đính kèm của bạn đã được tiếp nhận.</p>
+                        <button type="button" class="btn-new" onclick="resetForm()">📝 Gửi câu hỏi mới</button>
                     </div>
-                </form>
+                </div>
 
-                <div class="success-screen" id="successScreen">
-                    <div class="icon-wrap">✓</div>
-                    <h2>Gửi thành công!</h2>
-                    <p>Câu hỏi và tệp đính kèm của bạn đã được tiếp nhận xử lý.</p>
-                    <button type="button" class="btn-new" onclick="resetForm()">📝 Gửi câu hỏi mới</button>
+                <!-- TAB 2: TRẢ LỜI CÂU HỎI -->
+                <div id="tab-answer" class="tab-content">
+                    <div class="search-box">
+                        <input type="tel" id="searchPhone" class="form-control" placeholder="Nhập số điện thoại cần tìm...">
+                        <button type="button" class="btn-search" onclick="searchByPhone()">🔍 Tìm kiếm</button>
+                    </div>
+                    <div id="searchResults"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal xác nhận -->
+    <!-- Modal Xác nhận -->
     <div class="modal-overlay" id="confirmModal">
         <div class="modal-box">
             <h3>Xác nhận thông tin</h3>
@@ -647,42 +325,22 @@
                 <h3 style="margin:0;">🐙 Cấu hình GitHub</h3>
                 <button type="button" onclick="closeGithubConfig()" style="font-size:20px; color:var(--text-muted); background:none; border:none; cursor:pointer;">✕</button>
             </div>
-            
-            <div style="background:#fffbeb; border:1px solid #fef3c7; padding:10px; border-radius:8px; font-size:12px; color:#b45309; margin-bottom:12px;">
-                📌 Dung lượng tệp tối đa <b>25 MB</b> · Lưu trên repository <b>PRIVATE</b>
-            </div>
-
             <div id="ghConfigStatus" class="gh-config-status hidden">
                 <span class="status-icon">✅</span>
                 <div style="flex:1;">
-                    <div class="status-text">Đã kết nối GitHub</div>
-                    <div class="status-sub" id="ghConfigDetails"></div>
-                </div>
-                <button type="button" onclick="editGithubConfig()" class="btn-ghost">Sửa</button>
-            </div>
-
-            <div id="ghConfigFields" class="form-grid" style="display:block;">
-                <div class="form-group" style="margin-bottom:10px;">
-                    <label>Owner (username/org)</label>
-                    <input id="gh_owner" type="text" class="input-base" placeholder="VD: my-username">
-                </div>
-                <div class="form-group" style="margin-bottom:10px;">
-                    <label>Repository (PRIVATE)</label>
-                    <input id="gh_repo" type="text" class="input-base" placeholder="VD: my-repo">
-                </div>
-                <div class="form-group" style="margin-bottom:10px;">
-                    <label>Branch</label>
-                    <input id="gh_branch" type="text" class="input-base" value="main">
-                </div>
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label>Personal Access Token</label>
-                    <input id="gh_token" type="password" class="input-base" style="font-family:monospace;" placeholder="ghp_xxx...">
+                    <div style="font-weight:600; color:#166534; font-size:13px;">Đã kết nối GitHub</div>
+                    <div style="font-size:11px; color:#15803d; word-break:break-all;" id="ghConfigDetails"></div>
                 </div>
             </div>
-
-            <div id="ghActions" style="display:flex; gap:8px;">
+            <div id="ghConfigFields" class="form-grid">
+                <div class="form-group"><label>Owner</label><input id="gh_owner" type="text" class="input-base" placeholder="VD: Phuong-Ninh-Kieu"></div>
+                <div class="form-group"><label>Repository</label><input id="gh_repo" type="text" class="input-base" placeholder="VD: Storage-Private"></div>
+                <div class="form-group"><label>Branch</label><input id="gh_branch" type="text" class="input-base" value="main"></div>
+                <div class="form-group"><label>Personal Access Token</label><input id="gh_token" type="password" class="input-base" placeholder="ghp_xxx..."></div>
+            </div>
+            <div id="ghActions" style="display:flex; gap:8px; margin-top:12px;">
                 <button type="button" onclick="testGithub()" class="btn-ghost" style="flex:1; padding:10px;">🔌 Kiểm tra</button>
-                <button type="button" onclick="saveGithubConfig()" class="btn-submit" style="flex:1; padding:10px; font-size:14px; margin-top:0;">💾 Lưu</button>
+                <button type="button" onclick="saveGithubConfig()" class="btn-submit" style="flex:1; padding:10px; margin-top:0;">💾 Lưu</button>
             </div>
         </div>
     </div>
@@ -691,8 +349,6 @@
 
     <script>
         const ADMIN_PASSWORD = "Ht941980@";
-
-        // ========== FIREBASE CONFIG ==========
         const firebaseConfig = {
             apiKey: "AIzaSyCAn-dCRdVkbYZYuh_wWWKPe2-5_meQuBA",
             authDomain: "hoidap-ff5ed.firebaseapp.com",
@@ -702,11 +358,9 @@
             messagingSenderId: "747872918560",
             appId: "1:747872918560:web:f9f0d5073d083a46e03045"
         };
-
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // DOM elements
         const form = document.getElementById('questionForm');
         const fullName = document.getElementById('fullName');
         const phone = document.getElementById('phone');
@@ -715,15 +369,10 @@
         const field = document.getElementById('field');
         const questionText = document.getElementById('question');
         const successScreen = document.getElementById('successScreen');
-        const submitBtn = document.getElementById('submitBtn');
         const toast = document.getElementById('toast');
-
-        // File elements
         const fileInput = document.getElementById('fileInput');
         const fileList = document.getElementById('fileList');
         const fileUploadArea = document.getElementById('fileUploadArea');
-
-        // Modal elements
         const modal = document.getElementById('confirmModal');
         const modalInfo = document.getElementById('modalInfo');
         const modalConfirm = document.getElementById('modalConfirm');
@@ -733,35 +382,25 @@
         let pendingData = null;
         let uploadedFiles = [];
         let githubConfig = null;
+        let answerFilesMap = {};
 
-        // ========== GITHUB CONFIG ==========
-        function ghStorageKey() { return 'gh_cfg_questions'; }
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
 
         async function loadGithubConfig() {
-            githubConfig = null;
             try {
                 const snap = await database.ref('questions/public/sharedConfig/githubConfig').once('value');
                 const val = snap.val();
                 if (val && val.token) {
                     githubConfig = val;
-                    try { localStorage.setItem(ghStorageKey(), JSON.stringify(val)); } catch(_) {}
                     updateGithubConfigUI(true);
                     return;
                 }
-            } catch(e) { console.warn('Tải cấu hình GitHub lỗi:', e.message); }
-
-            try {
-                const local = localStorage.getItem(ghStorageKey());
-                if (local) {
-                    githubConfig = JSON.parse(local);
-                    if (githubConfig && githubConfig.token) {
-                        try { await database.ref('questions/public/sharedConfig/githubConfig').set(githubConfig); } catch(_) {}
-                        updateGithubConfigUI(true);
-                        return;
-                    }
-                }
-            } catch(_) { githubConfig = null; }
-
+            } catch(e) {}
             updateGithubConfigUI(false);
         }
 
@@ -769,13 +408,11 @@
             const status = document.getElementById('ghConfigStatus');
             const fields = document.getElementById('ghConfigFields');
             const actions = document.getElementById('ghActions');
-
             if (isConfigured && githubConfig) {
                 status.classList.remove('hidden');
                 fields.style.display = 'none';
                 actions.style.display = 'none';
-                document.getElementById('ghConfigDetails').textContent =
-                    `${githubConfig.owner}/${githubConfig.repo} (${githubConfig.branch || 'main'})`;
+                document.getElementById('ghConfigDetails').textContent = `${githubConfig.owner}/${githubConfig.repo} (${githubConfig.branch || 'main'})`;
             } else {
                 status.classList.add('hidden');
                 fields.style.display = 'block';
@@ -786,53 +423,12 @@
         function openGithubConfig() {
             if (githubConfig && githubConfig.token) {
                 const pwd = prompt('🔒 Nhập mật khẩu Admin để truy cập cấu hình:');
-                if (pwd === null) return;
-                if (pwd !== ADMIN_PASSWORD) {
-                    showToast('❌ Sai mật khẩu Admin!', 'error');
-                    return;
-                }
+                if (pwd !== ADMIN_PASSWORD) { showToast('❌ Sai mật khẩu Admin!', 'error'); return; }
             }
-
-            const c = githubConfig || {};
-            document.getElementById('gh_owner').value = c.owner || '';
-            document.getElementById('gh_repo').value = c.repo || '';
-            document.getElementById('gh_branch').value = c.branch || 'main';
-            document.getElementById('gh_token').value = c.token || '';
             document.getElementById('ghModal').classList.add('show');
-            updateGithubConfigUI(!!(githubConfig && githubConfig.token));
         }
 
-        function closeGithubConfig() {
-            document.getElementById('ghModal').classList.remove('show');
-        }
-
-        function editGithubConfig() {
-            const pwd = prompt('🔒 Nhập mật khẩu Admin để chỉnh sửa:');
-            if (pwd === null) return;
-            if (pwd !== ADMIN_PASSWORD) {
-                showToast('❌ Sai mật khẩu Admin!', 'error');
-                return;
-            }
-
-            document.getElementById('ghConfigStatus').classList.add('hidden');
-            document.getElementById('ghConfigFields').style.display = 'block';
-            document.getElementById('ghActions').style.display = 'flex';
-
-            if (githubConfig) {
-                document.getElementById('gh_owner').value = githubConfig.owner || '';
-                document.getElementById('gh_repo').value = githubConfig.repo || '';
-                document.getElementById('gh_branch').value = githubConfig.branch || 'main';
-                document.getElementById('gh_token').value = githubConfig.token || '';
-            }
-        }
-
-        function ghHeaders() {
-            return {
-                'Authorization': 'token ' + githubConfig.token,
-                'Accept': 'application/vnd.github+json',
-                'X-GitHub-Api-Version': '2022-11-28'
-            };
-        }
+        function closeGithubConfig() { document.getElementById('ghModal').classList.remove('show'); }
 
         function ghUrl(path) {
             return `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${encodeURI(path)}`;
@@ -850,28 +446,16 @@
         async function ghPut(path, contentBase64, message) {
             const r = await fetch(ghUrl(path), {
                 method: 'PUT',
-                headers: { ...ghHeaders(), 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: message || 'Upload ' + path,
-                    content: contentBase64,
-                    branch: githubConfig.branch || 'main'
-                })
-            });
-            if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + (await r.text()).slice(0, 200));
-            return r.json();
-        }
-
-        async function ghDelete(path, sha) {
-            const r = await fetch(ghUrl(path), {
-                method: 'DELETE',
-                headers: { ...ghHeaders(), 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: 'Delete ' + path,
-                    sha: sha,
-                    branch: githubConfig.branch || 'main'
-                })
+                headers: {
+                    'Authorization': 'token ' + githubConfig.token,
+                    'Accept': 'application/vnd.github+json',
+                    'X-GitHub-Api-Version': '2022-11-28',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: message || 'Upload ' + path, content: contentBase64, branch: githubConfig.branch || 'main' })
             });
             if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
         }
 
         async function saveGithubConfig() {
@@ -881,21 +465,12 @@
                 branch: document.getElementById('gh_branch').value.trim() || 'main',
                 token: document.getElementById('gh_token').value.trim()
             };
-            if (!cfg.owner || !cfg.repo || !cfg.token) {
-                showToast('⚠️ Nhập đủ owner, repo và token', 'error');
-                return;
-            }
-
-            try {
-                await database.ref('questions/public/sharedConfig/githubConfig').set(cfg);
-                githubConfig = cfg;
-                try { localStorage.setItem(ghStorageKey(), JSON.stringify(cfg)); } catch(_) {}
-                showToast('✅ Đã lưu cấu hình GitHub', 'success');
-                updateGithubConfigUI(true);
-                setTimeout(closeGithubConfig, 1000);
-            } catch(e) {
-                showToast('❌ Lỗi: ' + e.message, 'error');
-            }
+            if (!cfg.owner || !cfg.repo || !cfg.token) { showToast('⚠️ Nhập đủ thông tin', 'error'); return; }
+            await database.ref('questions/public/sharedConfig/githubConfig').set(cfg);
+            githubConfig = cfg;
+            showToast('✅ Đã lưu cấu hình GitHub', 'success');
+            updateGithubConfigUI(true);
+            setTimeout(closeGithubConfig, 1000);
         }
 
         async function testGithub() {
@@ -904,298 +479,240 @@
                 repo: document.getElementById('gh_repo').value.trim(),
                 token: document.getElementById('gh_token').value.trim()
             };
-            if (!cfg.owner || !cfg.repo || !cfg.token) {
-                showToast('⚠️ Nhập đủ owner, repo và token', 'error');
-                return;
-            }
-
-            try {
-                const r = await fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}`, {
-                    headers: { 'Authorization': 'token ' + cfg.token, 'Accept': 'application/vnd.github+json' }
-                });
-                if (!r.ok) throw new Error('HTTP ' + r.status);
-                const j = await r.json();
-                showToast(`✅ Kết nối thành công: ${j.full_name}`, 'success');
-            } catch(e) {
-                showToast('❌ Kết nối thất bại: ' + e.message, 'error');
-            }
+            const r = await fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}`, {
+                headers: { 'Authorization': 'token ' + cfg.token }
+            });
+            if (r.ok) showToast('✅ Kết nối thành công!', 'success');
+            else showToast('❌ Kết nối thất bại!', 'error');
         }
 
-        // ========== XỬ LÝ FILE ==========
-        const MAX_FILE_SIZE = 25 * 1024 * 1024;
-        const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf',
-            'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'text/plain'
-        ];
-
-        fileInput.addEventListener('change', function(e) {
-            handleFiles(e.target.files);
-            fileInput.value = '';
-        });
-
-        fileUploadArea.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            fileUploadArea.classList.add('dragover');
-        });
-
-        fileUploadArea.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            fileUploadArea.classList.remove('dragover');
-        });
-
-        fileUploadArea.addEventListener('drop', function(e) {
-            e.preventDefault();
-            fileUploadArea.classList.remove('dragover');
-            handleFiles(e.dataTransfer.files);
-        });
+        fileInput.addEventListener('change', function(e) { handleFiles(e.target.files); fileInput.value = ''; });
 
         function handleFiles(files) {
-            if (!githubConfig || !githubConfig.token) {
-                showToast('⚠️ Vui lòng cấu hình GitHub trước!', 'error');
-                openGithubConfig();
-                return;
-            }
-
-            for (let file of files) {
-                if (file.size > MAX_FILE_SIZE) {
-                    showToast(`⚠️ File "${file.name}" vượt quá 25MB`, 'error');
-                    continue;
-                }
-                if (!ALLOWED_TYPES.includes(file.type)) {
-                    showToast(`⚠️ File "${file.name}" không hỗ trợ`, 'error');
-                    continue;
-                }
-                if (uploadedFiles.some(f => f.file.name === file.name && f.file.size === file.size)) {
-                    showToast(`⚠️ File "${file.name}" đã chọn`, 'error');
-                    continue;
-                }
-                uploadFileToGitHub(file);
-            }
-        }
-
-        function createFileItem(file, fileId) {
-            const div = document.createElement('div');
-            div.className = 'file-item';
-            div.dataset.id = fileId;
-
-            let fileSize = (file.size / 1024).toFixed(1) + ' KB';
-            if (file.size > 1024 * 1024) {
-                fileSize = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
-            }
-
-            const isImage = file.type.startsWith('image/');
-
-            const fileInfo = {
-                id: fileId,
-                file: file,
-                uploaded: false,
-                ghPath: null,
-                ghSha: null,
-                url: null
-            };
-            uploadedFiles.push(fileInfo);
-
-            div.innerHTML = `
-                ${isImage ? `<img class="file-preview" src="#" alt="preview" style="display:none;">` :
-                              `<div class="file-preview">📄</div>`}
-                <div class="file-info">
-                    <div class="file-name">${file.name}</div>
-                    <div class="file-meta">
-                        <span class="file-size">${fileSize}</span>
-                        <span class="file-status">⏳ Đang tải...</span>
-                    </div>
-                </div>
-                <button type="button" class="file-remove" onclick="removeFile('${fileId}')" aria-label="Xóa">✕</button>
-            `;
-
-            return div;
+            if (!githubConfig || !githubConfig.token) { showToast('⚠️ Vui lòng cấu hình GitHub trước!', 'error'); openGithubConfig(); return; }
+            for (let file of files) { uploadFileToGitHub(file); }
         }
 
         async function uploadFileToGitHub(file) {
             const fileId = Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-            const fileItem = createFileItem(file, fileId);
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.innerHTML = `<div class="file-info"><div class="file-name">${file.name}</div><div class="file-status">⏳ Đang tải lên...</div></div>`;
             fileList.appendChild(fileItem);
 
             try {
-                const fileInfo = uploadedFiles.find(f => f.id === fileId);
-                if (!fileInfo) throw new Error("Lỗi khởi tạo");
-
                 const base64Data = await fileToBase64Raw(file);
-                const cleanFileName = file.name.replace(/[/\\?%*:|"<>]/g, '_');
-                const path = `questions/${fileId}_${cleanFileName}`;
+                const path = `questions/${fileId}_${file.name.replace(/[/\\?%*:|"<>]/g, '_')}`;
+                const res = await ghPut(path, base64Data, `Upload ${file.name}`);
+                const fileUrl = `https://raw.githubusercontent.com/${githubConfig.owner}/${githubConfig.repo}/${githubConfig.branch || 'main'}/${encodeURI(path)}`;
 
-                const result = await ghPut(path, base64Data, `Upload ${file.name}`);
-
-                fileInfo.ghPath = path;
-                fileInfo.ghSha = result.content.sha;
-                fileInfo.uploaded = true;
-                fileInfo.url = `https://raw.githubusercontent.com/${githubConfig.owner}/${githubConfig.repo}/${githubConfig.branch || 'main'}/${encodeURI(path)}`;
-
-                const status = fileItem.querySelector('.file-status');
-                if (status) {
-                    status.textContent = '✅ Hoàn tất';
-                    status.className = 'file-status done';
-                }
-
-                if (file.type.startsWith('image/')) {
-                    const preview = fileItem.querySelector('.file-preview');
-                    if (preview && preview.tagName === 'IMG') {
-                        preview.src = fileInfo.url;
-                        preview.style.display = 'block';
-                    }
-                }
-            } catch (error) {
-                console.error('Upload error:', error);
-                const status = fileItem.querySelector('.file-status');
-                if (status) {
-                    status.textContent = '❌ Lỗi';
-                    status.className = 'file-status error';
-                }
-                showToast('❌ Upload lỗi: ' + error.message, 'error');
-                setTimeout(() => {
-                    fileItem.remove();
-                    uploadedFiles = uploadedFiles.filter(f => f.id !== fileId);
-                }, 3000);
+                uploadedFiles.push({ name: file.name, size: file.size, type: file.type, ghPath: path, ghSha: res.content.sha, url: fileUrl });
+                fileItem.querySelector('.file-status').textContent = '✅ Hoàn tất';
+                fileItem.querySelector('.file-status').className = 'file-status done';
+            } catch (e) {
+                fileItem.querySelector('.file-status').textContent = '❌ Lỗi';
+                showToast('❌ Upload lỗi', 'error');
             }
         }
 
-        function removeFile(fileId) {
-            const fileInfo = uploadedFiles.find(f => f.id === fileId);
-            if (fileInfo && fileInfo.uploaded && fileInfo.ghPath && fileInfo.ghSha) {
-                ghDelete(fileInfo.ghPath, fileInfo.ghSha).catch(err => console.log('Delete error:', err));
+        // Hàm tải tệp thông minh qua Blob để vượt qua lỗi chặn CORS của trình duyệt
+        async function downloadFileFromUrl(url, fileName) {
+            showToast('⏳ Đang chuẩn bị tải tệp...', 'success');
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = blobUrl;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(blobUrl);
+                document.body.removeChild(a);
+                showToast('✅ Tải tệp thành công!', 'success');
+            } catch (err) {
+                // Fallback mở tab mới nếu fetch bị từ chối hẳn
+                window.open(url, '_blank');
             }
-            uploadedFiles = uploadedFiles.filter(f => f.id !== fileId);
-            const fileItem = document.querySelector(`.file-item[data-id="${fileId}"]`);
-            if (fileItem) fileItem.remove();
         }
 
-        // ========== BUILD MODAL INFO ==========
-        function buildModalInfo(data) {
-            let fileHtml = '';
-            if (uploadedFiles.length > 0) {
-                const uploaded = uploadedFiles.filter(f => f.uploaded);
-                if (uploaded.length > 0) {
-                    fileHtml = `<div class="file-attachments"><p class="label">📎 Tệp đính kèm (${uploaded.length}):</p>`;
-                    uploaded.forEach(f => {
-                        const isImage = f.file.type.startsWith('image/');
-                        if (isImage && f.url) {
-                            fileHtml += `<img src="${f.url}" class="file-preview-mini" alt="${f.file.name}">`;
-                        } else {
-                            fileHtml += `<span style="display:inline-block;margin:2px;padding:4px 8px;background:#e2e8f0;border-radius:4px;font-size:11px;">📄 ${f.file.name}</span>`;
-                        }
-                    });
-                    fileHtml += '</div>';
-                }
-            }
-
-            return `
-                <p><span class="label">👤 Họ tên:</span> ${data.fullName}</p>
-                <p><span class="label">📞 SĐT:</span> ${data.phone}</p>
-                <p><span class="label">📍 Địa chỉ:</span> ${data.address}</p>
-                <p><span class="label">📌 Khu vực:</span> ${data.area}</p>
-                <p><span class="label">📂 Lĩnh vực:</span> ${data.field}</p>
-                <p><span class="label">📝 Nội dung:</span> ${data.question}</p>
-                ${fileHtml}
-            `;
-        }
-
-        // ========== SUBMIT FORM ==========
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-
-            if (!githubConfig || !githubConfig.token) {
-                showToast('⚠️ Vui lòng cấu hình GitHub trước khi gửi!', 'error');
-                openGithubConfig();
-                return;
-            }
-
-            const name = fullName.value.trim();
-            const phoneVal = phone.value.trim();
-            const addressVal = address.value.trim();
-            const areaVal = area.value.trim();
-            const fieldVal = field.value;
-            const questionVal = questionText.value.trim();
-
-            if (!name || !phoneVal || !addressVal || !areaVal || !fieldVal || !questionVal) {
-                showToast('⚠️ Vui lòng điền đầy đủ thông tin!', 'error');
-                return;
-            }
-
-            const uploading = uploadedFiles.some(f => !f.uploaded);
-            if (uploading) {
-                showToast('⏳ Vui lòng chờ các tệp tải lên hoàn tất!', 'error');
-                return;
-            }
-
+            if (!githubConfig || !githubConfig.token) { showToast('⚠️ Cấu hình GitHub trước!', 'error'); openGithubConfig(); return; }
             pendingData = {
-                fullName: name,
-                phone: phoneVal,
-                address: addressVal,
-                area: areaVal,
-                field: fieldVal,
-                question: questionVal,
-                files: uploadedFiles.filter(f => f.uploaded).map(f => ({
-                    name: f.file.name,
-                    size: f.file.size,
-                    type: f.file.type,
-                    ghPath: f.ghPath,
-                    ghSha: f.ghSha,
-                    url: f.url
-                }))
+                fullName: fullName.value.trim(), phone: phone.value.trim(), address: address.value.trim(),
+                area: area.value.trim(), field: field.value, question: questionText.value.trim(), files: uploadedFiles
             };
-
-            modalInfo.innerHTML = buildModalInfo(pendingData);
+            modalInfo.innerHTML = `<p><span class="label">👤 Họ tên:</span> ${pendingData.fullName}</p><p><span class="label">📞 SĐT:</span> ${pendingData.phone}</p><p><span class="label">📝 Nội dung:</span> ${pendingData.question}</p>`;
             modal.classList.add('show');
-            modalConfirm.disabled = false;
         });
 
-        modalConfirm.addEventListener('click', function() {
+        modalConfirm.addEventListener('click', async function() {
             if (!pendingData) return;
-            modalConfirm.disabled = true;
-
-            const ref = database.ref('questions/public/items');
-            const newQ = {
-                fullName: pendingData.fullName,
-                phone: pendingData.phone,
-                address: pendingData.address,
-                area: pendingData.area,
-                field: pendingData.field,
-                question: pendingData.question,
-                files: pendingData.files,
+            await database.ref('questions/public/items').push({
+                ...pendingData,
                 fileCount: pendingData.files.length,
                 githubRepo: `${githubConfig.owner}/${githubConfig.repo}`,
                 created: new Date().toLocaleString('vi-VN'),
                 timestamp: Date.now()
-            };
-
-            ref.push(newQ)
-                .then(() => {
-                    modal.classList.remove('show');
-                    form.style.display = 'none';
-                    successScreen.style.display = 'block';
-                    showToast('✅ Đã gửi thành công!', 'success');
-                    uploadedFiles = [];
-                    pendingData = null;
-                })
-                .catch(error => {
-                    showToast('❌ Lỗi: ' + error.message, 'error');
-                    modalConfirm.disabled = false;
-                });
-        });
-
-        modalCancel.addEventListener('click', function() {
+            });
             modal.classList.remove('show');
-            pendingData = null;
-            modalConfirm.disabled = false;
+            form.style.display = 'none';
+            successScreen.style.display = 'block';
+            showToast('✅ Gửi thành công!', 'success');
+            uploadedFiles = [];
         });
 
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                modal.classList.remove('show');
-                pendingData = null;
-                modalConfirm.disabled = false;
+        modalCancel.addEventListener('click', () => modal.classList.remove('show'));
+
+        async function searchByPhone() {
+            const phoneInput = document.getElementById('searchPhone').value.trim();
+            const container = document.getElementById('searchResults');
+            container.innerHTML = '';
+            if (!phoneInput) { showToast('⚠️ Nhập số điện thoại!', 'error'); return; }
+
+            const snap = await database.ref('questions/public/items').once('value');
+            const items = snap.val();
+            let found = [];
+            if (items) {
+                Object.keys(items).forEach(key => { if (items[key].phone === phoneInput) found.push({ id: key, ...items[key] }); });
             }
-        });
+
+            if (found.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--danger); margin-top:20px;">❌ Không tìm thấy dữ liệu.</p>';
+                return;
+            }
+
+            found.reverse().forEach(q => renderQuestionForAnswer(q, container));
+        }
+
+        function renderQuestionForAnswer(q, container) {
+            answerFilesMap[q.id] = [];
+            const card = document.createElement('div');
+            card.className = 'question-card-wrapper';
+
+            let qFiles = '';
+            if (q.files) {
+                q.files.forEach(f => {
+                    qFiles += `<button type="button" class="file-link" onclick="downloadFileFromUrl('${f.url}', '${f.name}')">📥 Tải về: ${f.name}</button>`;
+                });
+            }
+
+            let ansText = q.answer || q.answerText || q.reply || '';
+            let ansTime = q.answeredAt || q.replyTime || '';
+            let ansFilesHtml = '';
+
+            let allAnsFiles = q.answerFiles || q.replyFiles || [];
+            
+            if (allAnsFiles.length === 0 && (q.answeredOnPath || q.replyGhPath)) {
+                let path = q.answeredOnPath || q.replyGhPath;
+                let fname = q.answerFileName || q.replyFileName || path.split('/').pop();
+                let fUrl = `https://raw.githubusercontent.com/${q.githubRepo || githubConfig.owner + '/' + githubConfig.repo}/${githubConfig.branch || 'main'}/${encodeURI(path)}`;
+                allAnsFiles.push({ name: fname, url: fUrl });
+            }
+
+            if (allAnsFiles.length > 0) {
+                allAnsFiles.forEach(f => {
+                    ansFilesHtml += `<button type="button" class="answer-file-link" onclick="downloadFileFromUrl('${f.url}', '${f.name}')">📥 Tải về: ${f.name}</button>`;
+                });
+            }
+
+            let existingAnswerHtml = '';
+            if (ansText || allAnsFiles.length > 0) {
+                existingAnswerHtml = `
+                    <div class="existing-answer-box">
+                        <div style="font-size:12px; font-weight:700; color:#15803d; margin-bottom:4px;">✅ Đã trả lời ngày: ${ansTime}</div>
+                        <div class="answer-text">${ansText}</div>
+                        ${ansFilesHtml ? `<div class="file-list-box" style="background:#f0fdf4; border-color:#bbf7d0;"><b style="color:#166534;">📎 Tệp phản hồi:</b><br>${ansFilesHtml}</div>` : ''}
+                    </div>
+                `;
+            }
+
+            card.innerHTML = `
+                <div class="section-question">
+                    <div class="section-title-question">📌 Nội dung câu hỏi</div>
+                    <div class="question-meta"><span>👤 <b>${q.fullName}</b> (${q.phone})</span><span>🕒 ${q.created || ''}</span></div>
+                    <div class="question-detail"><b>📍 Địa chỉ:</b> ${q.address}, ${q.area} | <b>📂 Lĩnh vực:</b> ${q.field}</div>
+                    <div class="question-content">${q.question}</div>
+                    ${qFiles ? `<div class="file-list-box"><b style="color:#1e40af;">📎 Tệp câu hỏi:</b><br>${qFiles}</div>` : ''}
+                </div>
+                <div class="section-answer">
+                    <div class="section-title-answer">💬 Câu trả lời / Phản hồi</div>
+                    ${existingAnswerHtml}
+                    <div class="form-group">
+                        <label><b>Nội dung phản hồi:</b></label>
+                        <textarea id="answer_input_${q.id}" class="form-control" placeholder="Nhập câu trả lời...">${ansText}</textarea>
+                    </div>
+                    <div class="form-group" style="margin-top:10px;">
+                        <label><b>📎 Đính kèm tệp phản hồi:</b></label>
+                        <div class="attachment-container">
+                            <div class="attachment-header">
+                                <span class="attachment-hint">Chọn tệp tài liệu, hình ảnh</span>
+                                <button type="button" class="btn-add-file" onclick="document.getElementById('ans_file_${q.id}').click()">➕ Thêm tệp</button>
+                            </div>
+                            <input type="file" id="ans_file_${q.id}" multiple style="display:none;" onchange="handleAnswerFiles('${q.id}', this.files)">
+                            <div class="file-list" id="ans_file_list_${q.id}"></div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-submit" onclick="submitAnswer('${q.id}')">💾 Lưu câu trả lời</button>
+                </div>
+            `;
+            container.appendChild(card);
+        }
+
+        async function handleAnswerFiles(qId, files) {
+            if (!githubConfig || !githubConfig.token) { showToast('⚠️ Cấu hình GitHub trước!', 'error'); openGithubConfig(); return; }
+            const listDiv = document.getElementById(`ans_file_list_${qId}`);
+
+            for (let file of files) {
+                const fileId = Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `<div class="file-info"><div class="file-name">${file.name}</div><div class="file-status">⏳ Đang tải lên...</div></div>`;
+                listDiv.appendChild(fileItem);
+
+                try {
+                    const base64Data = await fileToBase64Raw(file);
+                    const path = `answers/${qId}_${fileId}_${file.name.replace(/[/\\?%*:|"<>]/g, '_')}`;
+                    const res = await ghPut(path, base64Data, `Answer file ${file.name}`);
+                    const fileUrl = `https://raw.githubusercontent.com/${githubConfig.owner}/${githubConfig.repo}/${githubConfig.branch || 'main'}/${encodeURI(path)}`;
+
+                    if (!answerFilesMap[qId]) answerFilesMap[qId] = [];
+                    answerFilesMap[qId].push({ name: file.name, size: file.size, type: file.type, ghPath: path, ghSha: res.content.sha, url: fileUrl });
+
+                    fileItem.querySelector('.file-status').textContent = '✅ Hoàn tất';
+                    fileItem.querySelector('.file-status').className = 'file-status done';
+                } catch (e) {
+                    fileItem.querySelector('.file-status').textContent = '❌ Lỗi';
+                    showToast('❌ Lỗi tải tệp', 'error');
+                }
+            }
+        }
+
+        async function submitAnswer(qId) {
+            const answerText = document.getElementById(`answer_input_${qId}`).value.trim();
+            const newFiles = answerFilesMap[qId] || [];
+
+            try {
+                const snap = await database.ref(`questions/public/items/${qId}`).once('value');
+                const cur = snap.val() || {};
+                const existingFiles = cur.answerFiles || [];
+                const mergedFiles = [...existingFiles, ...newFiles];
+
+                await database.ref(`questions/public/items/${qId}`).update({
+                    answer: answerText,
+                    answerFiles: mergedFiles,
+                    answeredAt: new Date().toLocaleString('vi-VN')
+                });
+
+                showToast('✅ Đã lưu câu trả lời!', 'success');
+                searchByPhone();
+            } catch (e) {
+                showToast('❌ Lỗi khi lưu!', 'error');
+            }
+        }
 
         function resetForm() {
             uploadedFiles = [];
@@ -1204,17 +721,13 @@
             form.style.display = 'block';
             successScreen.style.display = 'none';
             pendingData = null;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function showToast(message, type = 'success') {
             toast.textContent = message;
             toast.className = 'toast show ' + type;
             clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-            return toastTimeout;
+            toastTimeout = setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
         loadGithubConfig();
