@@ -121,15 +121,15 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
         }
 
-        .section-question { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px; }
+        .section-question { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-md); padding: 14px; }
         .section-title-question { font-size: 13px; font-weight: 700; color: #1e40af; text-transform: uppercase; margin-bottom: 8px; }
         .question-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; border-bottom: 1px dashed #cbd5e1; padding-bottom: 6px; }
         .question-detail { font-size: 13px; color: #334155; margin-bottom: 8px; }
         .question-content { background: #ffffff; padding: 10px 12px; border-radius: 8px; font-size: 14px; color: var(--text-main); margin-bottom: 10px; border-left: 4px solid var(--primary); border: 1px solid #e2e8f0; }
 
-        .section-answer { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-md); padding: 14px; }
+        .section-answer { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-md); padding: 14px; margin-top: 12px; }
         .section-title-answer { font-size: 13px; font-weight: 700; color: #166534; text-transform: uppercase; margin-bottom: 10px; }
-        .existing-answer-box { background: #ffffff; border: 1px solid #a7f3d0; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+        .existing-answer-box { background: #ffffff; border: 1px solid #a7f3d0; border-radius: 8px; padding: 12px; margin-bottom: 6px; }
         .answer-text { font-size: 14px; color: #14532d; white-space: pre-line; line-height: 1.5; }
 
         .file-list-box { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 12px; margin-top: 8px; }
@@ -379,7 +379,6 @@
         let pendingData = null;
         let uploadedFiles = [];
         let githubConfig = null;
-        let answerFilesMap = {};
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -512,66 +511,62 @@
             }
         }
 
-        // Tải tệp thông minh qua GitHub API Content để tránh hoàn toàn lỗi 404 và Failed to fetch trên kho Private
         async function downloadFileFromPath(ghPath, fileName) {
-    showToast('⏳ Đang tải tệp xuống...', 'success');
-    try {
-        if (!githubConfig || !githubConfig.token) {
-            throw new Error('Chưa cấu hình GitHub Token');
-        }
-        
-        // Gọi GitHub API với Accept header là application/vnd.github.v3+json để nhận JSON chứa nội dung base64 chuẩn
-        const res = await fetch(`https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${encodeURI(ghPath)}`, {
-            headers: {
-                'Authorization': 'token ' + githubConfig.token,
-                'Accept': 'application/vnd.github.v3+json'
+            showToast('⏳ Đang tải tệp xuống...', 'success');
+            try {
+                if (!githubConfig || !githubConfig.token) {
+                    throw new Error('Chưa cấu hình GitHub Token');
+                }
+                
+                const res = await fetch(`https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${encodeURI(ghPath)}`, {
+                    headers: {
+                        'Authorization': 'token ' + githubConfig.token,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (!res.ok) throw new Error('Không thể tải tệp (HTTP ' + res.status + ')');
+                const data = await res.json();
+                
+                if (!data.content) throw new Error('Dữ liệu tệp trống hoặc không hợp lệ.');
+
+                const cleanedContent = data.content.replace(/\s/g, '');
+                const binaryString = atob(cleanedContent);
+                const len = binaryString.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                
+                let mimeType = 'application/octet-stream';
+                const lowerName = fileName.toLowerCase();
+                if (lowerName.endsWith('.pdf')) mimeType = 'application/pdf';
+                else if (lowerName.endsWith('.png')) mimeType = 'image/png';
+                else if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) mimeType = 'image/jpeg';
+                else if (lowerName.endsWith('.txt')) mimeType = 'text/plain;charset=utf-8';
+                else if (lowerName.endsWith('.doc')) mimeType = 'application/msword';
+                else if (lowerName.endsWith('.docx')) mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+
+                const blob = new Blob([bytes], { type: mimeType });
+                const blobUrl = window.URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = blobUrl;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                
+                setTimeout(() => {
+                    window.URL.revokeObjectURL(blobUrl);
+                    document.body.removeChild(a);
+                }, 100);
+
+                showToast('✅ Tải và mở tệp thành công!', 'success');
+            } catch (err) {
+                showToast('❌ ' + err.message, 'error');
             }
-        });
-        
-        if (!res.ok) throw new Error('Không thể tải tệp (HTTP ' + res.status + ')');
-        const data = await res.json();
-        
-        if (!data.content) throw new Error('Dữ liệu tệp trống hoặc không hợp lệ.');
-
-        // Giải mã nội dung base64 từ GitHub (xử lý an toàn với ký tự tiếng Việt/Unicode)
-        const cleanedContent = data.content.replace(/\s/g, '');
-        const binaryString = atob(cleanedContent);
-        const len = binaryString.length;
-        const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
         }
-        
-        // Tự động nhận diện định dạng MIME type để trình duyệt dễ dàng hiển thị/đọc
-        let mimeType = 'application/octet-stream';
-        const lowerName = fileName.toLowerCase();
-        if (lowerName.endsWith('.pdf')) mimeType = 'application/pdf';
-        else if (lowerName.endsWith('.png')) mimeType = 'image/png';
-        else if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) mimeType = 'image/jpeg';
-        else if (lowerName.endsWith('.txt')) mimeType = 'text/plain;charset=utf-8';
-        else if (lowerName.endsWith('.doc')) mimeType = 'application/msword';
-        else if (lowerName.endsWith('.docx')) mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-
-        const blob = new Blob([bytes], { type: mimeType });
-        const blobUrl = window.URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = blobUrl;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        
-        setTimeout(() => {
-            window.URL.revokeObjectURL(blobUrl);
-            document.body.removeChild(a);
-        }, 100);
-
-        showToast('✅ Tải và mở tệp thành công!', 'success');
-    } catch (err) {
-        showToast('❌ ' + err.message, 'error');
-    }
-}
 
         form.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -624,7 +619,6 @@
         }
 
         function renderQuestionForAnswer(q, container) {
-            answerFilesMap[q.id] = [];
             const card = document.createElement('div');
             card.className = 'question-card-wrapper';
 
@@ -674,80 +668,13 @@
                     <div class="question-content">${q.question}</div>
                     ${qFiles ? `<div class="file-list-box"><b style="color:#1e40af;">📎 Tệp câu hỏi:</b><br>${qFiles}</div>` : ''}
                 </div>
+                ${existingAnswerHtml ? `
                 <div class="section-answer">
                     <div class="section-title-answer">💬 Câu trả lời / Phản hồi</div>
                     ${existingAnswerHtml}
-                    <div class="form-group">
-                        <label><b>Nội dung phản hồi:</b></label>
-                        <textarea id="answer_input_${q.id}" class="form-control" placeholder="Nhập câu trả lời...">${ansText}</textarea>
-                    </div>
-                    <div class="form-group" style="margin-top:10px;">
-                        <label><b>📎 Đính kèm tệp phản hồi:</b></label>
-                        <div class="attachment-container">
-                            <div class="attachment-header">
-                                <span class="attachment-hint">Chọn tệp tài liệu, hình ảnh</span>
-                                <button type="button" class="btn-add-file" onclick="document.getElementById('ans_file_${q.id}').click()">➕ Thêm tệp</button>
-                            </div>
-                            <input type="file" id="ans_file_${q.id}" multiple style="display:none;" onchange="handleAnswerFiles('${q.id}', this.files)">
-                            <div class="file-list" id="ans_file_list_${q.id}"></div>
-                        </div>
-                    </div>
-                    <button type="button" class="btn-submit" onclick="submitAnswer('${q.id}')">💾 Lưu câu trả lời</button>
-                </div>
+                </div>` : ''}
             `;
             container.appendChild(card);
-        }
-
-        async function handleAnswerFiles(qId, files) {
-            if (!githubConfig || !githubConfig.token) { showToast('⚠️ Cấu hình GitHub trước!', 'error'); openGithubConfig(); return; }
-            const listDiv = document.getElementById(`ans_file_list_${qId}`);
-
-            for (let file of files) {
-                const fileId = Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-item';
-                fileItem.innerHTML = `<div class="file-info"><div class="file-name">${file.name}</div><div class="file-status">⏳ Đang tải lên...</div></div>`;
-                listDiv.appendChild(fileItem);
-
-                try {
-                    const base64Data = await fileToBase64Raw(file);
-                    const path = `answers/${qId}_${fileId}_${file.name.replace(/[/\\?%*:|"<>]/g, '_')}`;
-                    const res = await ghPut(path, base64Data, `Answer file ${file.name}`);
-                    const fileUrl = `https://raw.githubusercontent.com/${githubConfig.owner}/${githubConfig.repo}/${githubConfig.branch || 'main'}/${encodeURI(path)}`;
-
-                    if (!answerFilesMap[qId]) answerFilesMap[qId] = [];
-                    answerFilesMap[qId].push({ name: file.name, size: file.size, type: file.type, ghPath: path, ghSha: res.content.sha, url: fileUrl });
-
-                    fileItem.querySelector('.file-status').textContent = '✅ Hoàn tất';
-                    fileItem.querySelector('.file-status').className = 'file-status done';
-                } catch (e) {
-                    fileItem.querySelector('.file-status').textContent = '❌ Lỗi';
-                    showToast('❌ Lỗi tải tệp', 'error');
-                }
-            }
-        }
-
-        async function submitAnswer(qId) {
-            const answerText = document.getElementById(`answer_input_${qId}`).value.trim();
-            const newFiles = answerFilesMap[qId] || [];
-
-            try {
-                const snap = await database.ref(`questions/public/items/${qId}`).once('value');
-                const cur = snap.val() || {};
-                const existingFiles = cur.answerFiles || [];
-                const mergedFiles = [...existingFiles, ...newFiles];
-
-                await database.ref(`questions/public/items/${qId}`).update({
-                    answer: answerText,
-                    answerFiles: mergedFiles,
-                    answeredAt: new Date().toLocaleString('vi-VN')
-                });
-
-                showToast('✅ Đã lưu câu trả lời!', 'success');
-                searchByPhone();
-            } catch (e) {
-                showToast('❌ Lỗi khi lưu!', 'error');
-            }
         }
 
         function resetForm() {
