@@ -109,7 +109,17 @@
         @media (min-width: 480px) { .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } }
 
         .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-group label { font-weight: 600; font-size: 13px; color: #334155; display: flex; justify-content: space-between; }
+        
+        /* Chỉnh label thành flex-row để sát dấu sao */
+        .form-group label { 
+            font-weight: 600; 
+            font-size: 13px; 
+            color: #334155; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+        .form-group label .label-text { display: flex; align-items: center; }
         .form-group label .required { color: var(--danger); margin-left: 2px; }
         .form-group label .optional { color: var(--text-muted); font-weight: 400; font-size: 11px; }
 
@@ -125,6 +135,52 @@
         select.form-control {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8fafc;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            margin-top: 4px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+        .checkbox-group label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #334155;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            transition: all 0.2s ease;
+            display: none;
+            margin-top: 6px;
+        }
+        .btn-submit:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
         }
 
         .search-box { display: flex; gap: 8px; margin-bottom: 20px; }
@@ -218,18 +274,18 @@
     <div class="container">
         <div class="card">
             <div class="header">
-    <div class="header-top">
-        <img src="https://raw.githubusercontent.com/Phuong-Ninh-Kieu/nguoidanhoidap/main/logo-mat-tran-to-quoc-viet-nam-01.png" alt="Logo MTTQ" class="logo-mttq">
-        <div class="header-title-wrap">
-            <h1>Cổng Tiếp Nhận & Trả Lời</h1>
-            <p>Gửi ý kiến phản ánh hoặc tra cứu phản hồi</p>
-        </div>
-    </div>
-    <div class="nav-tabs">
-        <button type="button" class="tab-btn active" onclick="switchTab('tab-submit')">📝 Gửi câu hỏi</button>
-        <button type="button" class="tab-btn" onclick="switchTab('tab-answer')">💬 Tra cứu Trả lời</button>
-    </div>
-</div>
+                <div class="header-top">
+                    <img src="https://raw.githubusercontent.com/Phuong-Ninh-Kieu/nguoidanhoidap/main/logo-mat-tran-to-quoc-viet-nam-01.png" alt="Logo MTTQ" class="logo-mttq">
+                    <div class="header-title-wrap">
+                        <h1>Cổng Tiếp Nhận & Trả Lời</h1>
+                        <p>Gửi ý kiến phản ánh hoặc tra cứu phản hồi</p>
+                    </div>
+                </div>
+                <div class="nav-tabs">
+                    <button type="button" class="tab-btn active" onclick="switchTab('tab-submit')">📝 Gửi câu hỏi</button>
+                    <button type="button" class="tab-btn" onclick="switchTab('tab-answer')">💬 Tra cứu Trả lời</button>
+                </div>
+            </div>
 
             <div class="card-body">
                 <div class="top-actions">
@@ -242,28 +298,38 @@
                         <div class="form-grid">
                             <div class="form-grid-2">
                                 <div class="form-group">
-                                    <label for="fullName">Họ tên <span class="required">*</span></label>
+                                    <label for="fullName">
+                                        <span class="label-text">Họ tên<span class="required">*</span></span>
+                                    </label>
                                     <input type="text" id="fullName" class="form-control" placeholder="Nguyễn Văn A" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="phone">Số điện thoại <span class="required">*</span></label>
+                                    <label for="phone">
+                                        <span class="label-text">Số điện thoại<span class="required">*</span></span>
+                                    </label>
                                     <input type="tel" id="phone" class="form-control" placeholder="090 123 4567" required>
                                 </div>
                             </div>
 
                             <div class="form-grid-2">
                                 <div class="form-group">
-                                    <label for="address">Địa chỉ <span class="required">*</span></label>
+                                    <label for="address">
+                                        <span class="label-text">Địa chỉ<span class="required">*</span></span>
+                                    </label>
                                     <input type="text" id="address" class="form-control" placeholder="Số nhà, tên đường..." required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="area">Khu vực / Phường <span class="required">*</span></label>
+                                    <label for="area">
+                                        <span class="label-text">Khu vực / Phường<span class="required">*</span></span>
+                                    </label>
                                     <input type="text" id="area" class="form-control" placeholder="VD: Khu vực 1" required>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="field">Lĩnh vực <span class="required">*</span></label>
+                                <label for="field">
+                                    <span class="label-text">Lĩnh vực<span class="required">*</span></span>
+                                </label>
                                 <select id="field" class="form-control" required>
                                     <option value="">-- Chọn lĩnh vực --</option>
                                     <option value="Đất đai, nhà ở">Đất đai, nhà ở</option>
@@ -279,12 +345,17 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="question">Nội dung câu hỏi <span class="required">*</span></label>
+                                <label for="question">
+                                    <span class="label-text">Nội dung câu hỏi<span class="required">*</span></span>
+                                </label>
                                 <textarea id="question" class="form-control" placeholder="Nhập chi tiết nội dung..." required></textarea>
                             </div>
 
                             <div class="form-group">
-                                <label>Tệp đính kèm <span class="optional">(Tối đa 25MB)</span></label>
+                                <label>
+                                    <span class="label-text">Tệp đính kèm</span>
+                                    <span class="optional">(Tối đa 25MB)</span>
+                                </label>
                                 <div class="attachment-container" id="fileUploadArea">
                                     <div class="attachment-header">
                                         <span class="attachment-hint">Chọn tệp hình ảnh, tài liệu</span>
@@ -295,7 +366,14 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark));">
+                            <!-- Checkbox xác nhận điều khoản -->
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="agreeCheckbox" onchange="toggleSubmitButton()">
+                                <label for="agreeCheckbox">Đồng ý chịu trách nhiệm câu hỏi của mình</label>
+                            </div>
+
+                            <!-- Nút gửi câu hỏi -->
+                            <button type="submit" id="submitBtn" class="btn-submit">
                                 📤 Gửi câu hỏi
                             </button>
                         </div>
@@ -348,14 +426,14 @@
                 </div>
             </div>
             <div id="ghConfigFields" class="form-grid">
-                <div class="form-group"><label>Owner</label><input id="gh_owner" type="text" class="input-base" placeholder="VD: Phuong-Ninh-Kieu"></div>
-                <div class="form-group"><label>Repository</label><input id="gh_repo" type="text" class="input-base" placeholder="VD: Storage-Private"></div>
-                <div class="form-group"><label>Branch</label><input id="gh_branch" type="text" class="input-base" value="main"></div>
-                <div class="form-group"><label>Personal Access Token</label><input id="gh_token" type="password" class="input-base" placeholder="ghp_xxx..."></div>
+                <div class="form-group"><label><span class="label-text">Owner</span></label><input id="gh_owner" type="text" class="input-base" placeholder="VD: Phuong-Ninh-Kieu"></div>
+                <div class="form-group"><label><span class="label-text">Repository</span></label><input id="gh_repo" type="text" class="input-base" placeholder="VD: Storage-Private"></div>
+                <div class="form-group"><label><span class="label-text">Branch</span></label><input id="gh_branch" type="text" class="input-base" value="main"></div>
+                <div class="form-group"><label><span class="label-text">Personal Access Token</span></label><input id="gh_token" type="password" class="input-base" placeholder="ghp_xxx..."></div>
             </div>
             <div id="ghActions" style="display:flex; gap:8px; margin-top:12px;">
                 <button type="button" onclick="testGithub()" class="btn-ghost" style="flex:1; padding:10px;">🔌 Kiểm tra</button>
-                <button type="button" onclick="saveGithubConfig()" class="btn-submit" style="flex:1; padding:10px; margin-top:0;">💾 Lưu</button>
+                <button type="button" onclick="saveGithubConfig()" class="btn-submit" style="flex:1; padding:10px; margin-top:0; display:block;">💾 Lưu</button>
             </div>
         </div>
     </div>
@@ -391,11 +469,21 @@
         const modalInfo = document.getElementById('modalInfo');
         const modalConfirm = document.getElementById('modalConfirm');
         const modalCancel = document.getElementById('modalCancel');
+        const agreeCheckbox = document.getElementById('agreeCheckbox');
+        const submitBtn = document.getElementById('submitBtn');
 
         let toastTimeout = null;
         let pendingData = null;
         let uploadedFiles = [];
         let githubConfig = null;
+
+        function toggleSubmitButton() {
+            if (agreeCheckbox.checked) {
+                submitBtn.style.display = 'block';
+            } else {
+                submitBtn.style.display = 'none';
+            }
+        }
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -701,6 +789,8 @@
             form.style.display = 'block';
             successScreen.style.display = 'none';
             pendingData = null;
+            agreeCheckbox.checked = false;
+            toggleSubmitButton();
         }
 
         function showToast(message, type = 'success') {
