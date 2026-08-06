@@ -84,13 +84,14 @@
 
         .nav-tabs {
             display: flex; background: rgba(0, 0, 0, 0.15);
-            padding: 4px; border-radius: 12px;
+            padding: 4px; border-radius: 12px; gap: 4px;
         }
 
         .tab-btn {
-            flex: 1; padding: 10px 14px; background: transparent;
-            color: rgba(255, 255, 255, 0.8); border: none; font-size: 14px;
+            flex: 1; padding: 8px 10px; background: transparent;
+            color: rgba(255, 255, 255, 0.8); border: none; font-size: 13px;
             font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+            white-space: nowrap;
         }
         .tab-btn.active { background: #ffffff; color: var(--primary-dark); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); }
 
@@ -110,7 +111,6 @@
 
         .form-group { display: flex; flex-direction: column; gap: 6px; }
         
-        /* Chỉnh label thành flex-row để sát dấu sao */
         .form-group label { 
             font-weight: 600; 
             font-size: 13px; 
@@ -138,56 +138,38 @@
         }
 
         .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #f8fafc;
-            padding: 12px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            margin-top: 4px;
+            display: flex; align-items: center; gap: 10px; background: #f8fafc;
+            padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-md);
+            cursor: pointer; margin-top: 4px;
         }
-        .checkbox-group input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary);
-            cursor: pointer;
-        }
-        .checkbox-group label {
-            font-size: 13px;
-            font-weight: 500;
-            color: #334155;
-            cursor: pointer;
-            user-select: none;
-        }
+        .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+        .checkbox-group label { font-size: 13px; font-weight: 500; color: #334155; cursor: pointer; user-select: none; }
 
         .btn-submit {
-            width: 100%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            padding: 14px 20px;
-            border-radius: var(--radius-md);
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-            transition: all 0.2s ease;
-            display: none;
-            margin-top: 6px;
+            width: 100%; background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white; border: none; padding: 14px 20px; border-radius: var(--radius-md);
+            font-size: 16px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); transition: all 0.2s ease;
+            display: none; margin-top: 6px;
         }
-        .btn-submit:hover {
-            opacity: 0.95;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
-        }
+        .btn-submit:hover { opacity: 0.95; transform: translateY(-1px); }
 
         .search-box { display: flex; gap: 8px; margin-bottom: 20px; }
         .btn-search {
             background: var(--primary); color: white; border: none; padding: 0 18px;
             border-radius: var(--radius-md); font-weight: 600; font-size: 14px; cursor: pointer; white-space: nowrap;
         }
+
+        /* Giao diện danh sách bài tuyên truyền */
+        .propaganda-list { display: flex; flex-direction: column; gap: 12px; }
+        .propaganda-item {
+            background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-md);
+            padding: 16px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .propaganda-item:hover { border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59,130,246,0.1); }
+        .propaganda-date { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+        .propaganda-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 6px; line-height: 1.4; }
+        .propaganda-summary { font-size: 13px; color: #475569; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
         .question-card-wrapper {
             background: #ffffff; border: 1.5px solid var(--border);
@@ -281,9 +263,11 @@
                         <p>Gửi ý kiến phản ánh hoặc tra cứu phản hồi</p>
                     </div>
                 </div>
+                <!-- BỔ SUNG TAB TỰA ĐỀ "Tuyên truyền" -->
                 <div class="nav-tabs">
                     <button type="button" class="tab-btn active" onclick="switchTab('tab-submit')">📝 Gửi câu hỏi</button>
-                    <button type="button" class="tab-btn" onclick="switchTab('tab-answer')">💬 Tra cứu Trả lời</button>
+                    <button type="button" class="tab-btn" onclick="switchTab('tab-answer')">💬 Tra cứu</button>
+                    <button type="button" class="tab-btn" onclick="switchTab('tab-news')">📰 Tuyên truyền</button>
                 </div>
             </div>
 
@@ -395,6 +379,32 @@
                     </div>
                     <div id="searchResults"></div>
                 </div>
+
+                <!-- TAB 3: TUYÊN TRUYỀN (MỚI BỔ SUNG) -->
+                <div id="tab-news" class="tab-content">
+                    <div style="font-size: 14px; font-weight: 700; color: #1e3a8a; margin-bottom: 12px;">📰 Tin tức & Bài viết tuyên truyền</div>
+                    <div id="propagandaContainer" class="propaganda-list">
+                        <!-- Danh sách bài viết sẽ tự động load từ Firebase -->
+                        <p style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px 0;">Đang tải danh sách bài viết...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Đọc Bài Tuyên Truyền (MỚI BỔ SUNG) -->
+    <div class="modal-overlay" id="newsModal">
+        <div class="modal-box" style="max-width: 520px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                <h3 id="newsModalTitle" style="margin:0; font-size: 16px; text-align: left; color: #1e3a8a;">Tiêu đề bài viết</h3>
+                <button type="button" onclick="closeNewsModal()" style="font-size:18px; color:var(--text-muted); background:none; border:none; cursor:pointer;">✕</button>
+            </div>
+            <div id="newsModalDate" style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">Ngày đăng: --</div>
+            <div id="newsModalContent" style="font-size: 14px; color: var(--text-main); line-height: 1.6; white-space: pre-line; max-height: 60vh; overflow-y: auto;">
+                Nội dung bài viết...
+            </div>
+            <div style="margin-top: 16px; text-align: right;">
+                <button type="button" class="btn-search" onclick="closeNewsModal()" style="padding: 8px 16px;">Đóng</button>
             </div>
         </div>
     </div>
@@ -476,6 +486,7 @@
         let pendingData = null;
         let uploadedFiles = [];
         let githubConfig = null;
+        let propagandaCache = {}; // Lưu trữ dữ liệu bài viết tuyên truyền
 
         function toggleSubmitButton() {
             if (agreeCheckbox.checked) {
@@ -490,6 +501,82 @@
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             event.target.classList.add('active');
             document.getElementById(tabId).classList.add('active');
+            
+            // Nếu chuyển sang tab tuyên truyền thì tự động load dữ liệu
+            if (tabId === 'tab-news') {
+                loadPropagandaNews();
+            }
+        }
+
+        // --- HÀM TẢI BÀI VIẾT TUYÊN TRUYỀN TỪ FIREBASE ---
+        async function loadPropagandaNews() {
+            const container = document.getElementById('propagandaContainer');
+            try {
+                const snap = await database.ref('questions/public/propaganda').once('value');
+                const items = snap.val();
+                container.innerHTML = '';
+                
+                if (!items) {
+                    container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px 0;">Chưa có bài viết tuyên truyền nào.</p>';
+                    return;
+                }
+
+                propagandaCache = items;
+                let keys = Object.keys(items).reverse(); // Đảo ngược để bài mới nhất lên đầu
+
+                keys.forEach(key => {
+                    let item = items[key];
+                    let title = item.title || 'Bài viết tuyên truyền';
+                    let link = item.link || '#';
+                    let dateStr = item.timestamp ? new Date(item.timestamp).toLocaleDateString('vi-VN') : 'Cập nhật gần đây';
+
+                    let div = document.createElement('div');
+                    div.className = 'propaganda-item';
+                    
+                    // Nếu có link bài báo/tài liệu bên ngoài thì mở trực tiếp trong tab mới, nếu không thì mở modal chi tiết
+                    if (link && link !== '#') {
+                        div.onclick = () => window.open(link, '_blank');
+                    } else {
+                        div.onclick = () => openNewsModal(key);
+                    }
+
+                    div.innerHTML = `
+                        <div class="propaganda-date">📅 ${dateStr}</div>
+                        <div class="propaganda-title">📢 ${escapeHtml(title)}</div>
+                        <div class="propaganda-summary" style="color: var(--primary); font-weight: 500; font-size: 12px;">Nhấn để xem chi tiết hoặc mở liên kết ↗</div>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (e) {
+                container.innerHTML = '<p style="text-align: center; color: var(--danger); font-size: 13px; padding: 20px 0;">Không thể tải danh sách bài viết.</p>';
+            }
+        }
+
+        function openNewsModal(key) {
+            let item = propagandaCache[key];
+            if (!item) return;
+            
+            // Nếu có link gốc, ưu tiên chuyển hướng sang link đó luôn
+            if (item.link && item.link !== '#') {
+                window.open(item.link, '_blank');
+                return;
+            }
+
+            document.getElementById('newsModalTitle').textContent = item.title || 'Thông tin tuyên truyền';
+            document.getElementById('newsModalDate').textContent = '📅 Ngày đăng: ' + (item.timestamp ? new Date(item.timestamp).toLocaleString('vi-VN') : '');
+            document.getElementById('newsModalContent').textContent = item.content || 'Không có nội dung chi tiết.';
+            document.getElementById('newsModal').classList.add('show');
+        }
+
+        function closeNewsModal() {
+            document.getElementById('newsModal').classList.remove('show');
+        }
+
+        // Hàm hỗ trợ chống lỗi ký tự HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
         }
 
         async function loadGithubConfig() {
