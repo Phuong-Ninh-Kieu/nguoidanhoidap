@@ -2,8 +2,8 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📋 Hệ thống Hỏi & Đáp</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>📋 Cổng Hỏi & Đáp - MTTQ</title>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -11,25 +11,25 @@
     
     <style>
         :root {
-            --primary: #3b82f6;
+            --primary: #2563eb;
             --primary-dark: #1d4ed8;
             --primary-light: #eff6ff;
-            --bg-body: #f8fafc;
+            --bg-body: #f1f5f9;
             --surface: #ffffff;
             --text-main: #0f172a;
             --text-muted: #64748b;
-            --border: #e2e8f0;
-            --border-focus: #93c5fd;
+            --border: #cbd5e1;
+            --border-focus: #3b82f6;
             --danger: #ef4444;
             --success: #10b981;
             --radius-lg: 16px;
-            --radius-md: 10px;
-            --shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+            --radius-md: 12px;
+            --shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.08);
         }
 
         * {
             margin: 0; padding: 0; box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -38,40 +38,44 @@
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 16px 12px;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px;
             line-height: 1.5;
         }
 
-        .container { width: 100%; max-width: 580px; margin: 0 auto; }
+        .container { width: 100%; max-width: 480px; margin: 0 auto; }
 
         .card {
             background: var(--surface);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow);
-            border: 1px solid var(--border);
+            border: 1px solid #e2e8f0;
             overflow: hidden;
+            margin-bottom: 20px;
         }
 
         .header {
-            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
             color: #ffffff;
-            padding: 20px;
+            padding: 16px;
         }
 
         .header-top {
             display: flex;
             align-items: center;
-            gap: 14px;
-            margin-bottom: 14px;
+            gap: 12px;
+            margin-bottom: 12px;
         }
 
         .logo-mttq {
-            width: 50px;
-            height: 50px;
+            width: 44px;
+            height: 44px;
             object-fit: contain;
             flex-shrink: 0;
+            background: #fff;
+            border-radius: 50%;
+            padding: 2px;
         }
 
         .header-title-wrap {
@@ -79,41 +83,41 @@
             min-width: 0;
         }
 
-        .header h1 { font-size: 18px; font-weight: 700; line-height: 1.3; }
-        .header p { font-size: 12px; opacity: 0.9; margin-top: 2px; }
+        .header h1 { font-size: 16px; font-weight: 700; line-height: 1.3; }
+        .header p { font-size: 11px; opacity: 0.9; margin-top: 2px; }
 
         .nav-tabs {
-            display: flex; background: rgba(0, 0, 0, 0.15);
-            padding: 4px; border-radius: 12px; gap: 4px;
+            display: flex; background: rgba(0, 0, 0, 0.2);
+            padding: 4px; border-radius: 10px; gap: 4px;
         }
 
         .tab-btn {
-            flex: 1; padding: 8px 10px; background: transparent;
-            color: rgba(255, 255, 255, 0.8); border: none; font-size: 13px;
+            flex: 1; padding: 8px 4px; background: transparent;
+            color: rgba(255, 255, 255, 0.85); border: none; font-size: 12px;
             font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
-            white-space: nowrap;
+            white-space: nowrap; text-align: center;
         }
-        .tab-btn.active { background: #ffffff; color: var(--primary-dark); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); }
+        .tab-btn.active { background: #ffffff; color: var(--primary-dark); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
 
-        .card-body { padding: 20px 16px; }
+        .card-body { padding: 16px 14px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .top-actions { display: flex; justify-content: flex-end; margin-bottom: 16px; }
+        .top-actions { display: flex; justify-content: flex-end; margin-bottom: 12px; }
 
         .btn-ghost {
-            background: #f1f5f9; color: var(--text-muted); border: none;
-            padding: 6px 12px; border-radius: 20px; font-weight: 500; font-size: 12px;
+            background: #f1f5f9; color: var(--text-muted); border: 1px solid var(--border);
+            padding: 6px 12px; border-radius: 20px; font-weight: 500; font-size: 11px;
             cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
         }
 
-        .form-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
-        @media (min-width: 480px) { .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } }
+        .form-grid { display: flex; flex-direction: column; gap: 12px; }
+        .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
         
         .form-group label { 
             font-weight: 600; 
-            font-size: 13px; 
+            font-size: 12px; 
             color: #334155; 
             display: flex; 
             justify-content: space-between; 
@@ -121,104 +125,99 @@
         }
         .form-group label .label-text { display: flex; align-items: center; }
         .form-group label .required { color: var(--danger); margin-left: 2px; }
-        .form-group label .optional { color: var(--text-muted); font-weight: 400; font-size: 11px; }
+        .form-group label .optional { color: var(--text-muted); font-weight: 400; font-size: 10px; }
 
         .form-control {
-            width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
-            border-radius: var(--radius-md); font-size: 16px; color: var(--text-main);
-            background: #ffffff; outline: none;
+            width: 100%; padding: 11px 12px; border: 1.5px solid var(--border);
+            border-radius: var(--radius-md); font-size: 15px; color: var(--text-main);
+            background: #fff; outline: none; -webkit-appearance: none;
         }
-        @media (min-width: 640px) { .form-control { font-size: 14px; padding: 10px 12px; } }
-        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
-        textarea.form-control { min-height: 100px; resize: vertical; }
+        .form-control:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+        textarea.form-control { min-height: 90px; resize: none; }
 
         select.form-control {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px;
+            background-repeat: no-repeat; background-position: right 10px center; background-size: 16px; padding-right: 32px;
         }
 
         .checkbox-group {
-            display: flex; align-items: center; gap: 10px; background: #f8fafc;
-            padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-md);
-            cursor: pointer; margin-top: 4px;
+            display: flex; align-items: center; gap: 8px; background: #f8fafc;
+            padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-md);
+            cursor: pointer;
         }
         .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
-        .checkbox-group label { font-size: 13px; font-weight: 500; color: #334155; cursor: pointer; user-select: none; }
+        .checkbox-group label { font-size: 12px; font-weight: 500; color: #334155; cursor: pointer; user-select: none; }
 
         .btn-submit {
             width: 100%; background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white; border: none; padding: 14px 20px; border-radius: var(--radius-md);
-            font-size: 16px; font-weight: 700; cursor: pointer;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); transition: all 0.2s ease;
-            display: none; margin-top: 6px;
+            color: white; border: none; padding: 13px; border-radius: var(--radius-md);
+            font-size: 15px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            display: none; text-align: center;
         }
-        .btn-submit:hover { opacity: 0.95; transform: translateY(-1px); }
 
-        .search-box { display: flex; gap: 8px; margin-bottom: 20px; }
+        .search-box { display: flex; gap: 8px; margin-bottom: 16px; }
         .btn-search {
-            background: var(--primary); color: white; border: none; padding: 0 18px;
-            border-radius: var(--radius-md); font-weight: 600; font-size: 14px; cursor: pointer; white-space: nowrap;
+            background: var(--primary); color: white; border: none; padding: 0 16px;
+            border-radius: var(--radius-md); font-weight: 600; font-size: 13px; cursor: pointer; white-space: nowrap;
         }
 
         /* Giao diện danh sách bài tuyên truyền */
-        .propaganda-list { display: flex; flex-direction: column; gap: 12px; }
+        .propaganda-list { display: flex; flex-direction: column; gap: 10px; }
         .propaganda-item {
-            background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-md);
-            padding: 16px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md);
+            padding: 12px 14px; cursor: pointer; transition: all 0.2s ease;
         }
-        .propaganda-item:hover { border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59,130,246,0.1); }
-        .propaganda-date { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
-        .propaganda-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 6px; line-height: 1.4; }
-        .propaganda-summary { font-size: 13px; color: #475569; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .propaganda-item:active { background: #f8fafc; transform: scale(0.99); }
+        .propaganda-date { font-size: 10px; color: var(--text-muted); margin-bottom: 3px; display: flex; align-items: center; gap: 4px; }
+        .propaganda-title { font-size: 14px; font-weight: 700; color: #1e293b; line-height: 1.35; }
 
         .question-card-wrapper {
-            background: #ffffff; border: 1.5px solid var(--border);
-            border-radius: var(--radius-lg); padding: 16px; margin-bottom: 24px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            background: #fff; border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 14px; margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
         }
 
-        .section-question { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-md); padding: 14px; }
-        .section-title-question { font-size: 13px; font-weight: 700; color: #1e40af; text-transform: uppercase; margin-bottom: 8px; }
-        .question-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; border-bottom: 1px dashed #cbd5e1; padding-bottom: 6px; }
-        .question-detail { font-size: 13px; color: #334155; margin-bottom: 8px; }
-        .question-content { background: #ffffff; padding: 10px 12px; border-radius: 8px; font-size: 14px; color: var(--text-main); margin-bottom: 10px; border-left: 4px solid var(--primary); border: 1px solid #e2e8f0; }
+        .section-question { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 12px; }
+        .section-title-question { font-size: 11px; font-weight: 700; color: var(--primary-dark); text-transform: uppercase; margin-bottom: 6px; }
+        .question-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; display: flex; justify-content: space-between; border-bottom: 1px dashed #cbd5e1; padding-bottom: 4px; }
+        .question-detail { font-size: 12px; color: #334155; margin-bottom: 6px; }
+        .question-content { background: #fff; padding: 8px 10px; border-radius: 6px; font-size: 13px; color: var(--text-main); margin-bottom: 8px; border-left: 3px solid var(--primary); border: 1px solid #e2e8f0; }
 
-        .section-answer { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-md); padding: 14px; margin-top: 12px; }
-        .section-title-answer { font-size: 13px; font-weight: 700; color: #166534; text-transform: uppercase; margin-bottom: 10px; }
-        .existing-answer-box { background: #ffffff; border: 1px solid #a7f3d0; border-radius: 8px; padding: 12px; margin-bottom: 6px; }
-        .answer-text { font-size: 14px; color: #14532d; white-space: pre-line; line-height: 1.5; }
+        .section-answer { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-md); padding: 12px; margin-top: 10px; }
+        .section-title-answer { font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; margin-bottom: 8px; }
+        .existing-answer-box { background: #fff; border: 1px solid #a7f3d0; border-radius: 6px; padding: 10px; }
+        .answer-text { font-size: 13px; color: #14532d; white-space: pre-line; line-height: 1.4; }
 
-        .file-list-box { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 12px; margin-top: 8px; }
+        .file-list-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px; font-size: 11px; margin-top: 6px; }
         .file-link, .answer-file-link {
             display: inline-flex; align-items: center; gap: 6px; color: #1e40af; font-weight: 500;
-            text-decoration: none; background: #eff6ff; padding: 8px 12px; border-radius: 6px;
-            margin: 4px 0; border: 1px solid #bfdbfe; width: 100%; font-size: 12px; cursor: pointer;
+            text-decoration: none; background: #eff6ff; padding: 6px 10px; border-radius: 6px;
+            margin: 3px 0; border: 1px solid #bfdbfe; width: 100%; font-size: 11px; cursor: pointer;
         }
         .answer-file-link { color: #166534; background: #f0fdf4; border-color: #bbf7d0; }
-        .file-link:hover { background: #dbeafe; }
-        .answer-file-link:hover { background: #dcfce7; }
 
-        .attachment-container { border: 1.5px dashed var(--border); border-radius: var(--radius-md); padding: 12px; background: #ffffff; }
+        .attachment-container { border: 1.5px dashed var(--border); border-radius: var(--radius-md); padding: 10px; background: #fff; }
         .attachment-header { display: flex; justify-content: space-between; align-items: center; }
-        .attachment-hint { font-size: 12px; color: var(--text-muted); }
-        .btn-add-file { background: #ffffff; color: var(--primary); border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .attachment-hint { font-size: 11px; color: var(--text-muted); }
+        .btn-add-file { background: #f1f5f9; color: var(--primary); border: 1px solid var(--border); padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
 
-        .file-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-        .file-item { background: #ffffff; border-radius: 8px; padding: 8px 10px; display: flex; align-items: center; gap: 10px; font-size: 12px; border: 1px solid var(--border); }
+        .file-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+        .file-item { background: #f8fafc; border-radius: 6px; padding: 6px 8px; display: flex; align-items: center; gap: 8px; font-size: 11px; border: 1px solid var(--border); }
         .file-item .file-info { flex: 1; min-width: 0; }
         .file-item .file-name { font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .file-item .file-status { font-size: 11px; font-weight: 500; color: var(--primary); }
+        .file-item .file-status { font-size: 10px; font-weight: 500; color: var(--primary); }
         .file-item .file-status.done { color: var(--success); }
 
-        .success-screen { display: none; text-align: center; padding: 32px 16px; }
-        .success-screen .icon-wrap { width: 64px; height: 64px; background: #dcfce7; color: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 16px; }
-        .btn-new { background: var(--primary-light); border: 1px solid var(--border-focus); padding: 12px 24px; border-radius: 20px; font-weight: 600; color: var(--primary-dark); cursor: pointer; }
+        .success-screen { display: none; text-align: center; padding: 24px 12px; }
+        .success-screen .icon-wrap { width: 56px; height: 56px; background: #dcfce7; color: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 12px; }
+        .btn-new { background: var(--primary-light); border: 1px solid #bfdbfe; padding: 10px 20px; border-radius: 20px; font-weight: 600; color: var(--primary-dark); cursor: pointer; font-size: 13px; margin-top: 10px;}
 
         .toast {
-            position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-100px);
-            background: #1e293b; color: white; padding: 12px 20px; border-radius: 30px;
-            font-weight: 500; font-size: 13px; opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 9999; width: calc(100% - 32px); max-width: 400px; text-align: center;
+            position: fixed; top: 12px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            background: #1e293b; color: white; padding: 10px 16px; border-radius: 20px;
+            font-weight: 500; font-size: 12px; opacity: 0; transition: all 0.3s ease;
+            z-index: 9999; width: calc(100% - 24px); max-width: 360px; text-align: center;
         }
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
         .toast.success { background: #065f46; color: #ecfdf5; }
@@ -226,29 +225,27 @@
 
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 1000;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(2px); z-index: 1000;
             justify-content: center; align-items: flex-end;
         }
-        @media (min-width: 480px) { .modal-overlay { align-items: center; padding: 16px; } }
         .modal-overlay.show { display: flex; }
 
         .modal-box {
-            background: white; border-radius: 20px 20px 0 0; padding: 24px 20px;
-            width: 100%; max-width: 460px; box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.1);
+            background: white; border-radius: 20px 20px 0 0; padding: 20px 16px;
+            width: 100%; max-width: 480px; box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.1);
             max-height: 85vh; overflow-y: auto;
         }
-        @media (min-width: 480px) { .modal-box { border-radius: var(--radius-lg); } }
-        .modal-box h3 { text-align: center; color: var(--text-main); font-size: 18px; font-weight: 700; margin-bottom: 12px; }
-        .modal-info { background: #f8fafc; border-radius: var(--radius-md); padding: 14px; margin: 12px 0 16px; font-size: 13px; border: 1px solid var(--border); }
-        .modal-info p { margin-bottom: 6px; line-height: 1.5; color: #334155; }
+        .modal-box h3 { text-align: center; color: var(--text-main); font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+        .modal-info { background: #f8fafc; border-radius: var(--radius-md); padding: 12px; margin: 10px 0; font-size: 12px; border: 1px solid var(--border); }
+        .modal-info p { margin-bottom: 4px; line-height: 1.4; color: #334155; }
         .modal-info .label { font-weight: 600; color: var(--text-main); }
-        .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
-        .modal-actions button { flex: 1; padding: 12px; border: none; border-radius: var(--radius-md); font-weight: 600; font-size: 14px; cursor: pointer; }
+        .modal-actions { display: flex; gap: 8px; margin-top: 14px; }
+        .modal-actions button { flex: 1; padding: 11px; border: none; border-radius: var(--radius-md); font-weight: 600; font-size: 13px; cursor: pointer; }
         .modal-actions .btn-cancel { background: #f1f5f9; color: var(--text-muted); }
         .modal-actions .btn-confirm { background: var(--primary); color: white; }
 
-        .input-base { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-md); font-size: 14px; outline: none; }
-        .gh-config-status { display: flex; align-items: center; gap: 10px; padding: 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-md); margin-bottom: 12px; }
+        .input-base { width: 100%; padding: 10px; border: 1.5px solid var(--border); border-radius: var(--radius-md); font-size: 13px; outline: none; }
+        .gh-config-status { display: flex; align-items: center; gap: 8px; padding: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-md); margin-bottom: 10px; }
         .gh-config-status.hidden { display: none !important; }
     </style>
 </head>
@@ -260,12 +257,11 @@
                     <img src="https://raw.githubusercontent.com/Phuong-Ninh-Kieu/nguoidanhoidap/main/logo-mat-tran-to-quoc-viet-nam-01.png" alt="Logo MTTQ" class="logo-mttq">
                     <div class="header-title-wrap">
                         <h1>Cổng Tiếp Nhận & Trả Lời</h1>
-                        <p>Gửi ý kiến phản ánh hoặc tra cứu phản hồi</p>
+                        <p>Gửi ý kiến phản ánh & Tra cứu thông tin</p>
                     </div>
                 </div>
-                <!-- BỔ SUNG TAB TỰA ĐỀ "Tuyên truyền" -->
                 <div class="nav-tabs">
-                    <button type="button" class="tab-btn active" onclick="switchTab('tab-submit')">📝 Gửi câu hỏi</button>
+                    <button type="button" class="tab-btn active" onclick="switchTab('tab-submit')">📝 Gửi ý kiến</button>
                     <button type="button" class="tab-btn" onclick="switchTab('tab-answer')">💬 Tra cứu</button>
                     <button type="button" class="tab-btn" onclick="switchTab('tab-news')">📰 Tuyên truyền</button>
                 </div>
@@ -273,47 +269,37 @@
 
             <div class="card-body">
                 <div class="top-actions">
-                    <button type="button" onclick="openGithubConfig()" class="btn-ghost">🐙 Cấu hình GitHub</button>
+                    <button type="button" onclick="openGithubConfig()" class="btn-ghost">🐙 Cấu hình hệ thống</button>
                 </div>
 
                 <!-- TAB 1: GỬI CÂU HỎI -->
                 <div id="tab-submit" class="tab-content active">
                     <form id="questionForm">
                         <div class="form-grid">
-                            <div class="form-grid-2">
+                            <div class="form-row-2">
                                 <div class="form-group">
-                                    <label for="fullName">
-                                        <span class="label-text">Họ tên<span class="required">*</span></span>
-                                    </label>
+                                    <label for="fullName"><span class="label-text">Họ tên<span class="required">*</span></span></label>
                                     <input type="text" id="fullName" class="form-control" placeholder="Nguyễn Văn A" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="phone">
-                                        <span class="label-text">Số điện thoại<span class="required">*</span></span>
-                                    </label>
-                                    <input type="tel" id="phone" class="form-control" placeholder="090 123 4567" required>
+                                    <label for="phone"><span class="label-text">Số điện thoại<span class="required">*</span></span></label>
+                                    <input type="tel" id="phone" class="form-control" placeholder="0901234567" required>
                                 </div>
                             </div>
 
-                            <div class="form-grid-2">
+                            <div class="form-row-2">
                                 <div class="form-group">
-                                    <label for="address">
-                                        <span class="label-text">Địa chỉ<span class="required">*</span></span>
-                                    </label>
-                                    <input type="text" id="address" class="form-control" placeholder="Số nhà, tên đường..." required>
+                                    <label for="address"><span class="label-text">Địa chỉ<span class="required">*</span></span></label>
+                                    <input type="text" id="address" class="form-control" placeholder="Số nhà, tên đường" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="area">
-                                        <span class="label-text">Khu vực / Phường<span class="required">*</span></span>
-                                    </label>
-                                    <input type="text" id="area" class="form-control" placeholder="VD: Khu vực 1" required>
+                                    <label for="area"><span class="label-text">Khu vực<span class="required">*</span></span></label>
+                                    <input type="text" id="area" class="form-control" placeholder="VD: KV 1" required>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="field">
-                                    <span class="label-text">Lĩnh vực<span class="required">*</span></span>
-                                </label>
+                                <label for="field"><span class="label-text">Lĩnh vực<span class="required">*</span></span></label>
                                 <select id="field" class="form-control" required>
                                     <option value="">-- Chọn lĩnh vực --</option>
                                     <option value="Đất đai, nhà ở">Đất đai, nhà ở</option>
@@ -329,10 +315,8 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="question">
-                                    <span class="label-text">Nội dung câu hỏi<span class="required">*</span></span>
-                                </label>
-                                <textarea id="question" class="form-control" placeholder="Nhập chi tiết nội dung..." required></textarea>
+                                <label for="question"><span class="label-text">Nội dung câu hỏi<span class="required">*</span></span></label>
+                                <textarea id="question" class="form-control" placeholder="Nhập chi tiết nội dung cần phản ánh..." required></textarea>
                             </div>
 
                             <div class="form-group">
@@ -342,7 +326,7 @@
                                 </label>
                                 <div class="attachment-container" id="fileUploadArea">
                                     <div class="attachment-header">
-                                        <span class="attachment-hint">Chọn tệp hình ảnh, tài liệu</span>
+                                        <span class="attachment-hint">Ảnh hoặc tài liệu</span>
                                         <button type="button" class="btn-add-file" onclick="fileInput.click()">➕ Thêm tệp</button>
                                     </div>
                                     <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.txt" style="display:none;">
@@ -350,61 +334,58 @@
                                 </div>
                             </div>
 
-                            <!-- Checkbox xác nhận điều khoản -->
                             <div class="checkbox-group">
                                 <input type="checkbox" id="agreeCheckbox" onchange="toggleSubmitButton()">
-                                <label for="agreeCheckbox">Đồng ý chịu trách nhiệm câu hỏi của mình</label>
+                                <label for="agreeCheckbox">Cam kết thông tin trung thực, chính xác</label>
                             </div>
 
-                            <!-- Nút gửi câu hỏi -->
                             <button type="submit" id="submitBtn" class="btn-submit">
-                                📤 Gửi câu hỏi
+                                📤 Gửi ý kiến ngay
                             </button>
                         </div>
                     </form>
 
                     <div class="success-screen" id="successScreen">
                         <div class="icon-wrap">✓</div>
-                        <h2>Gửi thành công!</h2>
-                        <p>Câu hỏi và tệp đính kèm của bạn đã được tiếp nhận.</p>
-                        <button type="button" class="btn-new" onclick="resetForm()">📝 Gửi câu hỏi mới</button>
+                        <h2 style="font-size: 18px; margin-bottom: 6px;">Gửi thành công!</h2>
+                        <p style="font-size: 12px; color: var(--text-muted);">Ý kiến của bạn đã được chuyển đến bộ phận tiếp nhận.</p>
+                        <button type="button" class="btn-new" onclick="resetForm()">📝 Gửi ý kiến khác</button>
                     </div>
                 </div>
 
                 <!-- TAB 2: TRẢ LỜI CÂU HỎI -->
                 <div id="tab-answer" class="tab-content">
                     <div class="search-box">
-                        <input type="tel" id="searchPhone" class="form-control" placeholder="Nhập số điện thoại cần tìm...">
-                        <button type="button" class="btn-search" onclick="searchByPhone()">🔍 Tìm kiếm</button>
+                        <input type="tel" id="searchPhone" class="form-control" placeholder="Nhập số điện thoại tra cứu...">
+                        <button type="button" class="btn-search" onclick="searchByPhone()">🔍 Tra cứu</button>
                     </div>
                     <div id="searchResults"></div>
                 </div>
 
-                <!-- TAB 3: TUYÊN TRUYỀN (MỚI BỔ SUNG) -->
+                <!-- TAB 3: TUYÊN TRUYỀN -->
                 <div id="tab-news" class="tab-content">
-                    <div style="font-size: 14px; font-weight: 700; color: #1e3a8a; margin-bottom: 12px;">📰 Tin tức & Bài viết tuyên truyền</div>
+                    <div style="font-size: 13px; font-weight: 700; color: #1e3a8a; margin-bottom: 10px;">📰 Tin tức & Tuyên truyền</div>
                     <div id="propagandaContainer" class="propaganda-list">
-                        <!-- Danh sách bài viết sẽ tự động load từ Firebase -->
-                        <p style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px 0;">Đang tải danh sách bài viết...</p>
+                        <p style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 20px 0;">Đang tải danh sách bài viết...</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Đọc Bài Tuyên Truyền (MỚI BỔ SUNG) -->
+    <!-- Modal Đọc Bài Tuyên Truyền -->
     <div class="modal-overlay" id="newsModal">
-        <div class="modal-box" style="max-width: 520px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
-                <h3 id="newsModalTitle" style="margin:0; font-size: 16px; text-align: left; color: #1e3a8a;">Tiêu đề bài viết</h3>
-                <button type="button" onclick="closeNewsModal()" style="font-size:18px; color:var(--text-muted); background:none; border:none; cursor:pointer;">✕</button>
+        <div class="modal-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+                <h3 id="newsModalTitle" style="margin:0; font-size: 15px; text-align: left; color: #1e3a8a;">Tiêu đề</h3>
+                <button type="button" onclick="closeNewsModal()" style="font-size:16px; color:var(--text-muted); background:none; border:none; cursor:pointer;">✕</button>
             </div>
-            <div id="newsModalDate" style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">Ngày đăng: --</div>
-            <div id="newsModalContent" style="font-size: 14px; color: var(--text-main); line-height: 1.6; white-space: pre-line; max-height: 60vh; overflow-y: auto;">
-                Nội dung bài viết...
+            <div id="newsModalDate" style="font-size: 10px; color: var(--text-muted); margin-bottom: 8px;">Ngày đăng: --</div>
+            <div id="newsModalContent" style="font-size: 13px; color: var(--text-main); line-height: 1.5; white-space: pre-line; max-height: 55vh; overflow-y: auto;">
+                Nội dung...
             </div>
-            <div style="margin-top: 16px; text-align: right;">
-                <button type="button" class="btn-search" onclick="closeNewsModal()" style="padding: 8px 16px;">Đóng</button>
+            <div style="margin-top: 14px; text-align: right;">
+                <button type="button" class="btn-search" onclick="closeNewsModal()" style="padding: 7px 14px; font-size: 12px;">Đóng</button>
             </div>
         </div>
     </div>
@@ -412,7 +393,7 @@
     <!-- Modal Xác nhận -->
     <div class="modal-overlay" id="confirmModal">
         <div class="modal-box">
-            <h3>Xác nhận thông tin</h3>
+            <h3>Xác nhận thông tin gửi</h3>
             <div class="modal-info" id="modalInfo"></div>
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" id="modalCancel">Quay lại</button>
@@ -424,15 +405,15 @@
     <!-- GitHub Config Modal -->
     <div class="modal-overlay" id="ghModal">
         <div class="modal-box">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <h3 style="margin:0;">🐙 Cấu hình GitHub</h3>
-                <button type="button" onclick="closeGithubConfig()" style="font-size:20px; color:var(--text-muted); background:none; border:none; cursor:pointer;">✕</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="margin:0; font-size: 15px;">🐙 Cấu hình GitHub</h3>
+                <button type="button" onclick="closeGithubConfig()" style="font-size:18px; color:var(--text-muted); background:none; border:none; cursor:pointer;">✕</button>
             </div>
             <div id="ghConfigStatus" class="gh-config-status hidden">
                 <span class="status-icon">✅</span>
                 <div style="flex:1;">
-                    <div style="font-weight:600; color:#166534; font-size:13px;">Đã kết nối GitHub</div>
-                    <div style="font-size:11px; color:#15803d; word-break:break-all;" id="ghConfigDetails"></div>
+                    <div style="font-weight:600; color:#166534; font-size:12px;">Đã kết nối GitHub</div>
+                    <div style="font-size:10px; color:#15803d; word-break:break-all;" id="ghConfigDetails"></div>
                 </div>
             </div>
             <div id="ghConfigFields" class="form-grid">
@@ -441,9 +422,9 @@
                 <div class="form-group"><label><span class="label-text">Branch</span></label><input id="gh_branch" type="text" class="input-base" value="main"></div>
                 <div class="form-group"><label><span class="label-text">Personal Access Token</span></label><input id="gh_token" type="password" class="input-base" placeholder="ghp_xxx..."></div>
             </div>
-            <div id="ghActions" style="display:flex; gap:8px; margin-top:12px;">
-                <button type="button" onclick="testGithub()" class="btn-ghost" style="flex:1; padding:10px;">🔌 Kiểm tra</button>
-                <button type="button" onclick="saveGithubConfig()" class="btn-submit" style="flex:1; padding:10px; margin-top:0; display:block;">💾 Lưu</button>
+            <div id="ghActions" style="display:flex; gap:8px; margin-top:10px;">
+                <button type="button" onclick="testGithub()" class="btn-ghost" style="flex:1; padding:8px;">🔌 Kiểm tra</button>
+                <button type="button" onclick="saveGithubConfig()" class="btn-submit" style="flex:1; padding:8px; margin-top:0; display:block;">💾 Lưu cấu hình</button>
             </div>
         </div>
     </div>
@@ -486,14 +467,10 @@
         let pendingData = null;
         let uploadedFiles = [];
         let githubConfig = null;
-        let propagandaCache = {}; // Lưu trữ dữ liệu bài viết tuyên truyền
+        let propagandaCache = {};
 
         function toggleSubmitButton() {
-            if (agreeCheckbox.checked) {
-                submitBtn.style.display = 'block';
-            } else {
-                submitBtn.style.display = 'none';
-            }
+            submitBtn.style.display = agreeCheckbox.checked ? 'block' : 'none';
         }
 
         function switchTab(tabId) {
@@ -502,13 +479,11 @@
             event.target.classList.add('active');
             document.getElementById(tabId).classList.add('active');
             
-            // Nếu chuyển sang tab tuyên truyền thì tự động load dữ liệu
             if (tabId === 'tab-news') {
                 loadPropagandaNews();
             }
         }
 
-        // --- HÀM TẢI BÀI VIẾT TUYÊN TRUYỀN TỪ FIREBASE ---
         async function loadPropagandaNews() {
             const container = document.getElementById('propagandaContainer');
             try {
@@ -517,12 +492,12 @@
                 container.innerHTML = '';
                 
                 if (!items) {
-                    container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px 0;">Chưa có bài viết tuyên truyền nào.</p>';
+                    container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 15px 0;">Chưa có bài viết tuyên truyền nào.</p>';
                     return;
                 }
 
                 propagandaCache = items;
-                let keys = Object.keys(items).reverse(); // Đảo ngược để bài mới nhất lên đầu
+                let keys = Object.keys(items).reverse();
 
                 keys.forEach(key => {
                     let item = items[key];
@@ -533,7 +508,6 @@
                     let div = document.createElement('div');
                     div.className = 'propaganda-item';
                     
-                    // Nếu có link bài báo/tài liệu bên ngoài thì mở trực tiếp trong tab mới, nếu không thì mở modal chi tiết
                     if (link && link !== '#') {
                         div.onclick = () => window.open(link, '_blank');
                     } else {
@@ -543,12 +517,11 @@
                     div.innerHTML = `
                         <div class="propaganda-date">📅 ${dateStr}</div>
                         <div class="propaganda-title">📢 ${escapeHtml(title)}</div>
-                        <div class="propaganda-summary" style="color: var(--primary); font-weight: 500; font-size: 12px;">Nhấn để xem chi tiết hoặc mở liên kết ↗</div>
                     `;
                     container.appendChild(div);
                 });
             } catch (e) {
-                container.innerHTML = '<p style="text-align: center; color: var(--danger); font-size: 13px; padding: 20px 0;">Không thể tải danh sách bài viết.</p>';
+                container.innerHTML = '<p style="text-align: center; color: var(--danger); font-size: 12px; padding: 15px 0;">Không thể tải danh sách bài viết.</p>';
             }
         }
 
@@ -556,13 +529,12 @@
             let item = propagandaCache[key];
             if (!item) return;
             
-            // Nếu có link gốc, ưu tiên chuyển hướng sang link đó luôn
             if (item.link && item.link !== '#') {
                 window.open(item.link, '_blank');
                 return;
             }
 
-            document.getElementById('newsModalTitle').textContent = item.title || 'Thông tin tuyên truyền';
+            document.getElementById('newsModalTitle mundur' || 'newsModalTitle').textContent = item.title || 'Thông tin tuyên truyền';
             document.getElementById('newsModalDate').textContent = '📅 Ngày đăng: ' + (item.timestamp ? new Date(item.timestamp).toLocaleString('vi-VN') : '');
             document.getElementById('newsModalContent').textContent = item.content || 'Không có nội dung chi tiết.';
             document.getElementById('newsModal').classList.add('show');
@@ -572,7 +544,6 @@
             document.getElementById('newsModal').classList.remove('show');
         }
 
-        // Hàm hỗ trợ chống lỗi ký tự HTML
         function escapeHtml(text) {
             if (!text) return '';
             const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
@@ -600,7 +571,7 @@
                 status.classList.remove('hidden');
                 fields.style.display = 'none';
                 actions.style.display = 'none';
-                document.getElementById('ghConfigDetails').textContent = `${githubConfig.owner}/${githubConfig.repo} (${githubConfig.branch || 'main'})`;
+                document.getElementById('ghConfigDetails').textContent = `${githubConfig.owner}/${githubConfig.repo}`;
             } else {
                 status.classList.add('hidden');
                 fields.style.display = 'block';
@@ -610,8 +581,8 @@
 
         function openGithubConfig() {
             if (githubConfig && githubConfig.token) {
-                const pwd = prompt('🔒 Nhập mật khẩu Admin để truy cập cấu hình:');
-                if (pwd !== ADMIN_PASSWORD) { showToast('❌ Sai mật khẩu Admin!', 'error'); return; }
+                const pwd = prompt('🔒 Nhập mật khẩu Admin:');
+                if (pwd !== ADMIN_PASSWORD) { showToast('❌ Sai mật khẩu!', 'error'); return; }
             }
             document.getElementById('ghModal').classList.add('show');
         }
@@ -640,7 +611,7 @@
                     'X-GitHub-Api-Version': '2022-11-28',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ message: message || 'Upload ' + path, content: contentBase64, branch: githubConfig.branch || 'main' })
+                body: JSON.stringify({ message: message || 'Upload', content: contentBase64, branch: githubConfig.branch || 'main' })
             });
             if (!r.ok) throw new Error('HTTP ' + r.status);
             return r.json();
@@ -656,7 +627,7 @@
             if (!cfg.owner || !cfg.repo || !cfg.token) { showToast('⚠️ Nhập đủ thông tin', 'error'); return; }
             await database.ref('questions/public/sharedConfig/githubConfig').set(cfg);
             githubConfig = cfg;
-            showToast('✅ Đã lưu cấu hình GitHub', 'success');
+            showToast('✅ Đã lưu cấu hình', 'success');
             updateGithubConfigUI(true);
             setTimeout(closeGithubConfig, 1000);
         }
@@ -695,7 +666,7 @@
                 const fileUrl = `https://raw.githubusercontent.com/${githubConfig.owner}/${githubConfig.repo}/${githubConfig.branch || 'main'}/${encodeURI(path)}`;
 
                 uploadedFiles.push({ name: file.name, size: file.size, type: file.type, ghPath: path, ghSha: res.content.sha, url: fileUrl });
-                fileItem.querySelector('.file-status').textContent = '✅ Hoàn tất';
+                fileItem.querySelector('.file-status').textContent = '✅ Xong';
                 fileItem.querySelector('.file-status').className = 'file-status done';
             } catch (e) {
                 fileItem.querySelector('.file-status').textContent = '❌ Lỗi';
@@ -704,57 +675,33 @@
         }
 
         async function downloadFileFromPath(ghPath, fileName) {
-            showToast('⏳ Đang tải tệp xuống...', 'success');
+            showToast('⏳ Đang tải xuống...', 'success');
             try {
-                if (!githubConfig || !githubConfig.token) {
-                    throw new Error('Chưa cấu hình GitHub Token');
-                }
+                if (!githubConfig || !githubConfig.token) throw new Error('Chưa cấu hình Token');
                 
                 const res = await fetch(`https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${encodeURI(ghPath)}`, {
-                    headers: {
-                        'Authorization': 'token ' + githubConfig.token,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
+                    headers: { 'Authorization': 'token ' + githubConfig.token, 'Accept': 'application/vnd.github.v3+json' }
                 });
                 
-                if (!res.ok) throw new Error('Không thể tải tệp (HTTP ' + res.status + ')');
+                if (!res.ok) throw new Error('Không thể tải tệp');
                 const data = await res.json();
                 
-                if (!data.content) throw new Error('Dữ liệu tệp trống hoặc không hợp lệ.');
-
                 const cleanedContent = data.content.replace(/\s/g, '');
                 const binaryString = atob(cleanedContent);
                 const len = binaryString.length;
                 const bytes = new Uint8Array(len);
-                for (let i = 0; i < len; i++) {
-                    bytes[i] = binaryString.charCodeAt(i);
-                }
+                for (let i = 0; i < len; i++) bytes[i] = binaryString.charCodeAt(i);
                 
-                let mimeType = 'application/octet-stream';
-                const lowerName = fileName.toLowerCase();
-                if (lowerName.endsWith('.pdf')) mimeType = 'application/pdf';
-                else if (lowerName.endsWith('.png')) mimeType = 'image/png';
-                else if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) mimeType = 'image/jpeg';
-                else if (lowerName.endsWith('.txt')) mimeType = 'text/plain;charset=utf-8';
-                else if (lowerName.endsWith('.doc')) mimeType = 'application/msword';
-                else if (lowerName.endsWith('.docx')) mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-
-                const blob = new Blob([bytes], { type: mimeType });
+                const blob = new Blob([bytes]);
                 const blobUrl = window.URL.createObjectURL(blob);
-                
                 const a = document.createElement('a');
                 a.style.display = 'none';
                 a.href = blobUrl;
                 a.download = fileName;
                 document.body.appendChild(a);
                 a.click();
-                
-                setTimeout(() => {
-                    window.URL.revokeObjectURL(blobUrl);
-                    document.body.removeChild(a);
-                }, 100);
-
-                showToast('✅ Tải và mở tệp thành công!', 'success');
+                setTimeout(() => { window.URL.revokeObjectURL(blobUrl); document.body.removeChild(a); }, 100);
+                showToast('✅ Tải thành công!', 'success');
             } catch (err) {
                 showToast('❌ ' + err.message, 'error');
             }
@@ -803,7 +750,7 @@
             }
 
             if (found.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:var(--danger); margin-top:20px;">❌ Không tìm thấy dữ liệu.</p>';
+                container.innerHTML = '<p style="text-align:center; color:var(--danger); font-size:12px; margin-top:15px;">❌ Không tìm thấy dữ liệu.</p>';
                 return;
             }
 
@@ -825,9 +772,8 @@
             let ansText = q.answer || q.answerText || q.reply || '';
             let ansTime = q.answeredAt || q.replyTime || '';
             let ansFilesHtml = '';
-
             let allAnsFiles = q.answerFiles || q.replyFiles || [];
-            
+
             if (allAnsFiles.length === 0 && (q.answeredOnPath || q.replyGhPath)) {
                 let path = q.answeredOnPath || q.replyGhPath;
                 let fname = q.answerFileName || q.replyFileName || path.split('/').pop();
@@ -845,7 +791,7 @@
             if (ansText || allAnsFiles.length > 0) {
                 existingAnswerHtml = `
                     <div class="existing-answer-box">
-                        <div style="font-size:12px; font-weight:700; color:#15803d; margin-bottom:4px;">✅ Đã trả lời ngày: ${ansTime}</div>
+                        <div style="font-size:11px; font-weight:700; color:#15803d; margin-bottom:4px;">✅ Đã trả lời: ${ansTime}</div>
                         <div class="answer-text">${ansText}</div>
                         ${ansFilesHtml ? `<div class="file-list-box" style="background:#f0fdf4; border-color:#bbf7d0;"><b style="color:#166534;">📎 Tệp phản hồi:</b><br>${ansFilesHtml}</div>` : ''}
                     </div>
@@ -855,14 +801,14 @@
             card.innerHTML = `
                 <div class="section-question">
                     <div class="section-title-question">📌 Nội dung câu hỏi</div>
-                    <div class="question-meta"><span>👤 <b>${q.fullName}</b> (${q.phone})</span><span>🕒 ${q.created || ''}</span></div>
+                    <div class="question-meta"><span>👤 <b>${q.fullName}</b></span><span>🕒 ${q.created || ''}</span></div>
                     <div class="question-detail"><b>📍 Địa chỉ:</b> ${q.address}, ${q.area} | <b>📂 Lĩnh vực:</b> ${q.field}</div>
                     <div class="question-content">${q.question}</div>
-                    ${qFiles ? `<div class="file-list-box"><b style="color:#1e40af;">📎 Tệp câu hỏi:</b><br>${qFiles}</div>` : ''}
+                    ${qFiles ? `<div class="file-list-box"><b style="color:#1e40af;">📎 Tệp đính kèm:</b><br>${qFiles}</div>` : ''}
                 </div>
                 ${existingAnswerHtml ? `
                 <div class="section-answer">
-                    <div class="section-title-answer">💬 Câu trả lời / Phản hồi</div>
+                    <div class="section-title-answer">💬 Phản hồi từ cơ quan</div>
                     ${existingAnswerHtml}
                 </div>` : ''}
             `;
