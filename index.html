@@ -46,26 +46,18 @@
 
         .container { width: 100%; max-width: 480px; margin: 0 auto; }
 
-        .card {
-            background: var(--surface);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            border: 1px solid #e2e8f0;
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-
+        /* TIÊU ĐỀ NẰM TRÊN CÙNG */
         .header {
             background: linear-gradient(135deg, #1e3a8a, #2563eb);
             color: #ffffff;
             padding: 16px 14px;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
         }
 
         .header-top {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 14px;
         }
 
         .logo-mttq {
@@ -86,12 +78,21 @@
         .header h1 { font-size: 16px; font-weight: 700; line-height: 1.3; }
         .header p { font-size: 11px; opacity: 0.9; margin-top: 2px; }
 
-        /* Tối ưu hóa cụm nút Tab chuyển đổi cho di động */
+        /* THANH MENU 3 NÚT CỐ ĐỊNH NGAY DƯỚI TIÊU ĐỀ KHI CUỘN */
+        .nav-tabs-fixed-container {
+            position: sticky;
+            top: 0;
+            z-index: 9999;
+            background: #1e3a8a;
+            padding: 8px 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
         .nav-tabs {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            background: rgba(0, 0, 0, 0.2);
-            padding: 4px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 3px;
             border-radius: 10px;
             gap: 4px;
         }
@@ -117,6 +118,16 @@
             background: #ffffff;
             color: var(--primary-dark);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* KHUNG CHỨA NỘI DUNG CHÍNH (ĐÃ BỎ OVERFLOW: HIDDEN ĐỂ STICKY HOẠT ĐỘNG) */
+        .card-content-wrapper {
+            background: var(--surface);
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            box-shadow: var(--shadow);
+            border: 1px solid #e2e8f0;
+            border-top: none;
+            margin-bottom: 20px;
         }
 
         .card-body { padding: 16px 14px; }
@@ -236,7 +247,7 @@
             position: fixed; top: 12px; left: 50%; transform: translateX(-50%) translateY(-100px);
             background: #1e293b; color: white; padding: 10px 16px; border-radius: 20px;
             font-weight: 500; font-size: 12px; opacity: 0; transition: all 0.3s ease;
-            z-index: 9999; width: calc(100% - 24px); max-width: 360px; text-align: center;
+            z-index: 99999; width: calc(100% - 24px); max-width: 360px; text-align: center;
         }
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
         .toast.success { background: #065f46; color: #ecfdf5; }
@@ -244,7 +255,7 @@
 
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(2px); z-index: 1000;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(2px); z-index: 10000;
             justify-content: center; align-items: flex-end;
         }
         .modal-overlay.show { display: flex; }
@@ -270,22 +281,28 @@
 </head>
 <body>
     <div class="container">
-        <div class="card">
-            <div class="header">
-                <div class="header-top">
-                    <img src="https://raw.githubusercontent.com/Phuong-Ninh-Kieu/nguoidanhoidap/main/logo-mat-tran-to-quoc-viet-nam-01.png" alt="Logo MTTQ" class="logo-mttq">
-                    <div class="header-title-wrap">
-                        <h1>Cổng Tiếp Nhận & Trả Lời</h1>
-                        <p>Gửi ý kiến phản ánh & Tra cứu thông tin</p>
-                    </div>
-                </div>
-                <div class="nav-tabs">
-                    <button type="button" class="tab-btn active" onclick="switchTab('tab-submit')">📝 Gửi ý kiến</button>
-                    <button type="button" class="tab-btn" onclick="switchTab('tab-answer')">🔍 Tra cứu</button>
-                    <button type="button" class="tab-btn" onclick="switchTab('tab-news')">📰 Tuyên truyền</button>
+        <!-- 1. Tiêu đề Cổng Tiếp Nhận & Trả Lời nằm ở trên cùng -->
+        <div class="header">
+            <div class="header-top">
+                <img src="https://raw.githubusercontent.com/Phuong-Ninh-Kieu/nguoidanhoidap/main/logo-mat-tran-to-quoc-viet-nam-01.png" alt="Logo MTTQ" class="logo-mttq">
+                <div class="header-title-wrap">
+                    <h1>Cổng Tiếp Nhận & Trả Lời</h1>
+                    <p>Gửi ý kiến phản ánh & Tra cứu thông tin</p>
                 </div>
             </div>
+        </div>
 
+        <!-- 2. Thanh menu 3 nút cố định (sticky) ngay dưới tiêu đề khi cuộn trang -->
+        <div class="nav-tabs-fixed-container">
+            <div class="nav-tabs">
+                <button type="button" class="tab-btn active" onclick="switchTab('tab-submit')">📝 Gửi ý kiến</button>
+                <button type="button" class="tab-btn" onclick="switchTab('tab-answer')">🔍 Tra cứu</button>
+                <button type="button" class="tab-btn" onclick="switchTab('tab-news')">📰 Tuyên truyền</button>
+            </div>
+        </div>
+
+        <!-- 3. Khung chứa nội dung các tab -->
+        <div class="card-content-wrapper">
             <div class="card-body">
                 <div class="top-actions">
                     <button type="button" onclick="openGithubConfig()" class="btn-ghost">🐙 Cấu hình hệ thống</button>
