@@ -794,62 +794,71 @@
         }
 
         function renderQuestionForAnswer(q, container) {
-            const card = document.createElement('div');
-            card.className = 'question-card-wrapper';
+    const card = document.createElement('div');
+    card.className = 'question-card-wrapper';
 
-            let qFiles = '';
-            if (q.files) {
-                q.files.forEach(f => {
-                    let pathParam = f.ghPath || f.url.split('/main/')[1] || '';
-                    qFiles += `<button type="button" class="file-link" onclick="downloadFileFromPath('${pathParam}', '${f.name}')">📥 Tải về: ${f.name}</button>`;
-                });
-            }
+    let qFiles = '';
+    if (q.files) {
+        q.files.forEach(f => {
+            let pathParam = f.ghPath || f.url.split('/main/')[1] || '';
+            qFiles += `<button type="button" class="file-link" onclick="downloadFileFromPath('${pathParam}', '${f.name}')">📥 Tải về: ${f.name}</button>`;
+        });
+    }
 
-            let ansText = q.answer || q.answerText || q.reply || '';
-            let ansTime = q.answeredAt || q.replyTime || '';
-            let ansFilesHtml = '';
-            let allAnsFiles = q.answerFiles || q.replyFiles || [];
+    let ansText = q.answer || q.answerText || q.reply || '';
+    let ansTime = q.answeredAt || q.replyTime || '';
+    let ansFilesHtml = '';
+    let allAnsFiles = q.answerFiles || q.replyFiles || [];
 
-            if (allAnsFiles.length === 0 && (q.answeredOnPath || q.replyGhPath)) {
-                let path = q.answeredOnPath || q.replyGhPath;
-                let fname = q.answerFileName || q.replyFileName || path.split('/').pop();
-                allAnsFiles.push({ name: fname, ghPath: path });
-            }
+    if (allAnsFiles.length === 0 && (q.answeredOnPath || q.replyGhPath)) {
+        let path = q.answeredOnPath || q.replyGhPath;
+        let fname = q.answerFileName || q.replyFileName || path.split('/').pop();
+        allAnsFiles.push({ name: fname, ghPath: path });
+    }
 
-            if (allAnsFiles.length > 0) {
-                allAnsFiles.forEach(f => {
-                    let pathParam = f.ghPath || f.url.split('/main/')[1] || '';
-                    ansFilesHtml += `<button type="button" class="answer-file-link" onclick="downloadFileFromPath('${pathParam}', '${f.name}')">📥 Tải về: ${f.name}</button>`;
-                });
-            }
+    if (allAnsFiles.length > 0) {
+        allAnsFiles.forEach(f => {
+            let pathParam = f.ghPath || f.url.split('/main/')[1] || '';
+            ansFilesHtml += `<button type="button" class="answer-file-link" onclick="downloadFileFromPath('${pathParam}', '${f.name}')">📥 Tải về: ${f.name}</button>`;
+        });
+    }
 
-            let existingAnswerHtml = '';
-            if (ansText || allAnsFiles.length > 0) {
-                existingAnswerHtml = `
-                    <div class="existing-answer-box">
-                        <div style="font-size:11px; font-weight:700; color:#15803d; margin-bottom:4px;">✅ Đã trả lời: ${ansTime}</div>
-                        <div class="answer-text">${ansText}</div>
-                        ${ansFilesHtml ? `<div class="file-list-box" style="background:#f0fdf4; border-color:#bbf7d0;"><b style="color:#166534;">📎 Tệp phản hồi:</b><br>${ansFilesHtml}</div>` : ''}
-                    </div>
-                `;
-            }
+    let existingAnswerHtml = '';
+    if (ansText || allAnsFiles.length > 0) {
+        existingAnswerHtml = `
+            <div class="existing-answer-box">
+                <div style="font-size:11px; font-weight:700; color:#15803d; margin-bottom:4px;">✅ Đã trả lời: ${ansTime}</div>
+                <div class="answer-text">${ansText}</div>
+                ${ansFilesHtml ? `<div class="file-list-box" style="background:#f0fdf4; border-color:#bbf7d0;"><b style="color:#166534;">📎 Tệp phản hồi:</b><br>${ansFilesHtml}</div>` : ''}
+            </div>
+        `;
 
-            card.innerHTML = `
-                <div class="section-question">
-                    <div class="section-title-question">📌 Nội dung câu hỏi</div>
-                    <div class="question-meta"><span>👤 <b>${q.fullName}</b></span><span>🕒 ${q.created || ''}</span></div>
-                    <div class="question-detail"><b>📍 Địa chỉ:</b> ${q.address}, ${q.area} | <b>📂 Lĩnh vực:</b> ${q.field}</div>
-                    <div class="question-content">${q.question}</div>
-                    ${qFiles ? `<div class="file-list-box"><b style="color:#1e40af;">📎 Tệp đính kèm:</b><br>${qFiles}</div>` : ''}
-                </div>
-                ${existingAnswerHtml ? `
-                <div class="section-answer">
-                    <div class="section-title-answer">💬 Phản hồi từ cơ quan</div>
-                    ${existingAnswerHtml}
-                </div>` : ''}
-            `;
-            container.appendChild(card);
+        // 🟢 KIỂM TRA VÀ GHI NHẬN TRẠNG THÁI "ĐÃ XEM" LÊN FIREBASE
+        if (!q.isRead) {
+            database.ref('questions/public/items/' + q.id).update({
+                isRead: true,
+                readAt: new Date().toLocaleString('vi-VN'),
+                readTimestamp: Date.now()
+            });
         }
+    }
+
+    card.innerHTML = `
+        <div class="section-question">
+            <div class="section-title-question">📌 Nội dung câu hỏi</div>
+            <div class="question-meta"><span>👤 <b>${q.fullName}</b></span><span>🕒 ${q.created || ''}</span></div>
+            <div class="question-detail"><b>📍 Địa chỉ:</b> ${q.address}, ${q.area} | <b>📂 Lĩnh vực:</b> ${q.field}</div>
+            <div class="question-content">${q.question}</div>
+            ${qFiles ? `<div class="file-list-box"><b style="color:#1e40af;">📎 Tệp đính kèm:</b><br>${qFiles}</div>` : ''}
+        </div>
+        ${existingAnswerHtml ? `
+        <div class="section-answer">
+            <div class="section-title-answer">💬 Phản hồi từ cơ quan</div>
+            ${existingAnswerHtml}
+        </div>` : ''}
+    `;
+    container.appendChild(card);
+}
 
         function resetForm() {
             uploadedFiles = [];
