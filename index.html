@@ -503,6 +503,7 @@
         let toastTimeout = null;
         let pendingData = null;
         let uploadedFiles = [];
+        let originalFiles = []; // 👈 THÊM DÒNG NÀY
         let githubConfig = null;
         let propagandaCache = {};
 
@@ -686,6 +687,8 @@
 
         function handleFiles(files) {
             if (!githubConfig || !githubConfig.token) { showToast('⚠️ Vui lòng cấu hình GitHub trước!', 'error'); openGithubConfig(); return; }
+            // 👈 THÊM DÒNG NÀY: Lưu file gốc để gửi lên Google
+    originalFiles = Array.from(files);
             for (let file of files) { uploadFileToGitHub(file); }
         }
 
@@ -782,7 +785,7 @@
       question: pendingData.question
     };
     
-    const googleResult = await sendToGoogleSheets(formData, pendingData.files);
+    const googleResult = await sendToGoogleSheets(formData, originalFiles);
     
     if (googleResult.result === 'success') {
       showToast('✅ Đã lưu vào Firebase và Google Sheets!', 'success');
@@ -896,6 +899,7 @@
 
         function resetForm() {
             uploadedFiles = [];
+            originalFiles = []; // 👈 THÊM DÒNG NÀY
             fileList.innerHTML = '';
             form.reset();
             form.style.display = 'block';
