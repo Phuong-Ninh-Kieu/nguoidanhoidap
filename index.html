@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cổng Tiếp Nhận & Trả Lời - MTTQ Việt Nam</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; -webkit-tap-highlight-color: transparent; }
+        .tab-active { background-color: white !important; color: #1e40af !important; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .hidden { display: none; }
+        .transition-all { transition: all 0.25s ease; }
+    </style>
+</head>
+<body class="max-w-md mx-auto min-h-screen bg-white shadow-xl pb-12 flex flex-col justify-between">
+
+    <div>
+        <!-- HEADER & NAVIGATION -->
+        <div class="bg-gradient-to-r from-blue-900 to-blue-600 p-5 text-white sticky top-0 z-50 shadow-md">
+            <div class="flex items-center gap-3.5 mb-4">
+                <div class="bg-white p-1.5 rounded-full shadow-md shrink-0">
+                    <img src="logo-mat-tran-to-quoc-viet-nam-01.png" class="w-11 h-11 object-contain" alt="Logo MTTQ">
+                </div>
+                <div>
+                    <h1 class="text-sm font-extrabold tracking-tight uppercase leading-snug">Cổng Tiếp Nhận & Trả Lời</h1>
+                    <p class="text-[9px] opacity-90 font-medium italic uppercase tracking-wider">Mặt trận Tổ quốc Việt Nam Phường Ninh Kiều</p>
+                </div>
+            </div>
+
+            <div class="bg-blue-950/40 p-1 rounded-xl flex gap-1 border border-white/10 shadow-inner">
+                <button onclick="showTab('gui')" id="btn-gui" class="flex-1 py-2.5 rounded-lg text-xs font-bold tab-active transition-all flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-file-pen text-[11px]"></i> Gửi ý kiến
+                </button>
+                <button onclick="showTab('tra')" id="btn-tra" class="flex-1 py-2.5 rounded-lg text-xs font-bold text-blue-100 transition-all flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-magnifying-glass text-[11px]"></i> Tra cứu
+                </button>
+                <button onclick="showTab('tin')" id="btn-tin" class="flex-1 py-2.5 rounded-lg text-xs font-bold text-blue-100 transition-all flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-newspaper text-[11px]"></i> Tuyên truyền
+                </button>
+            </div>
+        </div>
+
+        <div class="p-4 space-y-4">
+            <!--<div class="flex justify-end">
+                <button class="bg-slate-100 text-slate-600 px-3.5 py-1 rounded-full text-[9px] font-bold border border-slate-200 uppercase tracking-wider flex items-center gap-1">
+                    <i class="fa-solid fa-gear text-amber-500"></i> Cấu hình hệ thống
+                </button>
+            </div> -->
+
+            <!-- VIEW 1: GỬI Ý KIẾN -->
+            <div id="view-gui" class="space-y-3.5">
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-700 mb-1 ml-0.5">Họ tên<span class="text-rose-500 ml-0.5">*</span></label>
+                        <input type="text" id="ho_ten" placeholder="Nguyễn Văn A" class="w-full border border-slate-200 p-3 rounded-xl text-xs bg-slate-50/50 focus:bg-white focus:border-blue-600 outline-none transition-all font-medium text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-700 mb-1 ml-0.5">Số điện thoại<span class="text-rose-500 ml-0.5">*</span></label>
+                        <input type="tel" id="so_dien_thoai" placeholder="0901234567" class="w-full border border-slate-200 p-3 rounded-xl text-xs bg-slate-50/50 focus:bg-white focus:border-blue-600 outline-none transition-all font-medium text-slate-800">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-700 mb-1 ml-0.5">Địa chỉ<span class="text-rose-500 ml-0.5">*</span></label>
+                        <input type="text" id="dia_chi" placeholder="Số nhà, tên đường" class="w-full border border-slate-200 p-3 rounded-xl text-xs bg-slate-50/50 focus:bg-white focus:border-blue-600 outline-none transition-all font-medium text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-700 mb-1 ml-0.5">Khu vực<span class="text-rose-500 ml-0.5">*</span></label>
+                        <input type="text" id="khu_vuc" placeholder="VD: KV 1" class="w-full border border-slate-200 p-3 rounded-xl text-xs bg-slate-50/50 focus:bg-white focus:border-blue-600 outline-none transition-all font-medium text-slate-800">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-700 mb-1 ml-0.5">Lĩnh vực<span class="text-rose-500 ml-0.5">*</span></label>
+                    <select id="linh_vuc" class="w-full border border-slate-200 p-3 rounded-xl text-xs bg-slate-50/50 focus:bg-white focus:border-blue-600 outline-none transition-all cursor-pointer font-medium text-slate-700">
+                        <option value="">-- Chọn lĩnh vực --</option>
+                        <option>Đất đai, nhà ở</option>
+                        <option>Giao thông, xây dựng</option>
+                        <option>Môi trường, vệ sinh</option>
+                        <option>Y tế, sức khỏe</option>
+                        <option>Giáo dục, đào tạo</option>
+                        <option>An ninh trật tự</option>
+                        <option>Kiến nghị Khác</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-700 mb-1 ml-0.5">Nội dung câu hỏi<span class="text-rose-500 ml-0.5">*</span></label>
+                    <textarea id="noi_dung" rows="4" placeholder="Nhập chi tiết nội dung cần phản ánh..." class="w-full border border-slate-200 p-3 rounded-xl text-xs bg-slate-50/50 focus:bg-white focus:border-blue-600 outline-none transition-all font-medium text-slate-800"></textarea>
+                </div>
+
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center px-0.5">
+                        <label class="text-[10px] font-bold text-slate-700">Tệp đính kèm</label>
+                        <span class="text-[9px] text-slate-400 font-medium">(Tối đa 25MB)</span>
+                    </div>
+                    <div class="border border-dashed border-slate-300 rounded-xl p-3 flex items-center justify-between bg-slate-50/50">
+                        <span id="fileName" class="text-xs text-slate-400 font-medium truncate max-w-[200px]">Ảnh hoặc tài liệu</span>
+                        <input type="file" id="fileInp" class="hidden" onchange="handleFile(this)">
+                        <button onclick="document.getElementById('fileInp').click()" class="bg-white text-slate-700 hover:bg-slate-100 px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-200 shadow-2xs transition-all flex items-center gap-1">
+                            <i class="fa-solid fa-plus text-[9px]"></i> Thêm tệp
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CHECKBOX CAM KẾT VÀ NÚT GỬI ẨN/HIỆN -->
+                <div class="border border-slate-200 rounded-xl p-3.5 bg-slate-50/50 flex items-center gap-3">
+                    <input type="checkbox" id="cam_ket" onchange="toggleSubmitBtn(this)" class="w-5 h-5 accent-blue-600 cursor-pointer rounded shrink-0">
+                    <label for="cam_ket" class="text-[11px] font-medium text-slate-700 cursor-pointer select-none leading-snug">Cam kết thông tin trung thực, chính xác</label>
+                </div>
+
+                <div id="submit-container" class="hidden pt-1">
+                    <button onclick="sendPAKN()" class="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white py-3.5 rounded-xl font-bold text-xs shadow-md shadow-blue-200 transition-all flex items-center justify-center gap-2 uppercase tracking-wider">
+                        <i class="fa-solid fa-paper-plane text-xs"></i> Gửi ý kiến ngay
+                    </button>
+                </div>
+            </div>
+
+            <!-- VIEW 2: TRA CỨU -->
+            <div id="view-tra" class="hidden space-y-3.5">
+                <div class="flex gap-2">
+                    <input type="tel" id="sPhone" placeholder="Nhập số điện thoại tra cứu..." class="flex-1 border border-slate-200 p-3 rounded-xl text-xs outline-none focus:border-blue-600 shadow-2xs bg-slate-50/50 font-medium text-slate-800">
+                    <button onclick="searchPAKN()" class="bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white px-5 py-3 rounded-xl font-bold text-xs shadow-md shadow-blue-100 transition-all flex items-center gap-1 shrink-0"><i class="fa-solid fa-magnifying-glass text-[10px]"></i> Tra cứu</button>
+                </div>
+                <div id="tra-results" class="space-y-3 pt-1"></div>
+            </div>
+
+            <!-- VIEW 3: TUYÊN TRUYỀN -->
+            <div id="view-tin" class="hidden space-y-3">
+                <h2 class="font-bold text-slate-800 border-l-4 border-blue-600 pl-2.5 uppercase text-xs tracking-wider mb-2">Tin tức & Tuyên truyền</h2>
+                <div id="news-list" class="space-y-2.5"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER INFO -->
+    <div class="text-center pt-8 pb-2 text-[10px] text-slate-400 font-medium">
+        © 2026 Ủy ban MTTQ Việt Nam Phường Ninh Kiều
+    </div>
+
+    <script>
+        // Dán link Web App Google Apps Script của bạn vào đây:
+        const GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzFg8K6BMy0PvdgAkreCMzYdSJRm1UvIcRvTeBe08vbtHA8b0JvilJivQcvAbYT6PQ2sQ/exec";
+        const SB_URL = "https://sacjaehzhoowpzghcgqa.supabase.co";
+        const SB_KEY = "sb_publishable_ri5aytFYiLMbC2q5qaPs9w_cA66g82l";
+        const sb = supabase.createClient(SB_URL, SB_KEY);
+        let myFile = null;
+
+        function showTab(tab) {
+            ['view-gui', 'view-tra', 'view-tin'].forEach(v => document.getElementById(v).classList.add('hidden'));
+            ['btn-gui', 'btn-tra', 'btn-tin'].forEach(b => {
+                document.getElementById(b).classList.remove('tab-active');
+                document.getElementById(b).classList.add('text-blue-100');
+            });
+            document.getElementById('view-' + tab).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + tab);
+            activeBtn.classList.add('tab-active');
+            activeBtn.classList.remove('text-blue-100');
+            if(tab === 'tin') loadNews();
+        }
+
+        function toggleSubmitBtn(checkbox) {
+            const container = document.getElementById('submit-container');
+            if (checkbox.checked) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function handleFile(input) {
+            if (input.files && input.files[0]) {
+                myFile = input.files[0];
+                document.getElementById('fileName').innerText = myFile.name;
+                document.getElementById('fileName').className = "text-xs text-blue-600 font-bold truncate max-w-[200px]";
+            }
+        }
+
+        async function sendPAKN() {
+            const name = document.getElementById('ho_ten').value;
+            const phone = document.getElementById('so_dien_thoai').value;
+            if(!name || !phone) return alert("Vui lòng nhập Họ tên và Số điện thoại!");
+
+            // Hiện thông báo đang xử lý để người dùng không bấm nhiều lần
+            const submitBtn = document.querySelector('#submit-container button');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi dữ liệu...';
+            }
+
+            let fileUrl = "";
+            if (myFile) {
+                const cleanName = myFile.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').replace(/[^a-zA-Z0-9.]/g, '_'); 
+                const fName = Date.now() + "_" + cleanName;
+                const { data, error } = await sb.storage.from('attachments').upload(fName, myFile);
+                if (!error) {
+                    const { data: pUrl } = sb.storage.from('attachments').getPublicUrl(fName);
+                    fileUrl = pUrl.publicUrl;
+                }
+            }
+
+            const payload = {
+                ho_ten: name, 
+                so_dien_thoai: phone,
+                dia_chi: document.getElementById('dia_chi').value,
+                khu_vuc: document.getElementById('khu_vuc').value,
+                linh_vuc: document.getElementById('linh_vuc').value,
+                noi_dung: document.getElementById('noi_dung').value,
+                tep_dinh_kem: fileUrl, 
+                trang_thai: 'Chưa trả lời'
+            };
+
+            const { data: newRecord, error: insErr } = await sb.from('pakn').insert([payload]).select().single();
+
+            if (insErr) {
+                alert("Lỗi: " + insErr.message);
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane text-xs"></i> Gửi ý kiến ngay';
+                }
+            } else {
+                // ĐỒNG BỘ SANG GOOGLE VÀ CHỜ HOÀN TẤT
+                await syncToGoogle(newRecord || payload);
+                
+                alert("Gửi phản ánh thành công!");
+                location.reload();
+            }
+        }
+
+        async function searchPAKN() {
+            const phone = document.getElementById('sPhone').value;
+            if(!phone) return alert("Vui lòng nhập số điện thoại tra cứu!");
+            const { data } = await sb.from('pakn').select('*').eq('so_dien_thoai', phone).order('id', {ascending: false});
+            const res = document.getElementById('tra-results');
+            res.innerHTML = data && data.length ? "" : "<p class='text-center py-8 text-slate-400 font-medium text-xs'>Không tìm thấy dữ liệu phản ánh cho số điện thoại này.</p>";
+            
+            if (data && data.length > 0) {
+                for (let i of data) {
+                    const timeStr = new Date(i.created_at).toLocaleString('vi-VN');
+                    
+                    // Cập nhật trạng thái đã xem chỉ 1 lần duy nhất khi chưa có dữ liệu xem trước đó
+                    if (i.trang_thai === 'Đã trả lời' && !i.xem_phan_hoi) {
+                        const nowTime = new Date().toLocaleString('vi-VN');
+                        const initialViewStatus = `Đã xem (${nowTime})`;
+                        await sb.from('pakn').update({ xem_phan_hoi: initialViewStatus }).eq('id', i.id);
+                        i.xem_phan_hoi = initialViewStatus;
+                    }
+
+                    const tepTraLoiHtml = i.tep_tra_loi ? `
+                        <div class="mt-2.5">
+                            <a href="${i.tep_tra_loi}" target="_blank" class="flex items-center justify-between bg-emerald-50 hover:bg-emerald-100 p-2.5 rounded-lg text-emerald-800 font-bold text-xs border border-emerald-200 transition-all">
+                                <span><i class="fa-solid fa-file-arrow-down mr-1.5 text-emerald-600"></i>Tài liệu phản hồi đính kèm</span>
+                                <span class="bg-emerald-600 text-white px-2 py-0.5 rounded text-[10px]">Tải xuống</span>
+                            </a>
+                        </div>` : "";
+
+                    res.innerHTML += `
+                    <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs space-y-2.5">
+                        <div class="flex justify-between items-center text-[10px] border-b border-slate-100 pb-2">
+                            <span class="font-bold text-slate-800">${i.ho_ten} (${i.so_dien_thoai})</span>
+                            <span class="text-slate-400 font-medium"><i class="fa-regular fa-clock mr-1"></i>${timeStr}</span>
+                        </div>
+                        <div class="text-xs text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-200/60 leading-relaxed">
+                            <span class="font-bold text-slate-900 block mb-0.5">Nội dung phản ánh:</span> ${i.noi_dung}
+                        </div>
+                        ${i.trang_thai === 'Đã trả lời' ? `
+                        <div class="bg-emerald-50/50 border border-emerald-200 rounded-lg p-3 space-y-2">
+                            <div class="flex items-center gap-1 text-emerald-800 font-bold text-xs">
+                                <i class="fa-solid fa-circle-check"></i> Phản hồi từ cơ quan chức năng:
+                            </div>
+                            <p class="text-xs text-slate-700 font-medium leading-relaxed">${i.cau_tra_loi || 'Đã có câu trả lời.'}</p>
+                            ${tepTraLoiHtml}
+                            <div class="text-[10px] text-emerald-700 font-semibold pt-0.5 flex items-center gap-1">
+                                <i class="fa-solid fa-eye"></i> Trạng thái: <span class="underline">${i.xem_phản_hồi || 'Đã xem'}</span>
+                            </div>
+                        </div>` : `
+                        <div class="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-center text-xs font-bold text-amber-700">
+                            <i class="fa-solid fa-hourglass-half mr-1"></i> Đang chờ cơ quan chức năng xử lý...
+                        </div>`}
+                    </div>`;
+                }
+            }
+        }
+
+        async function loadNews() {
+            const { data } = await sb.from('tuyen_truyen').select('*').order('id', {ascending: false});
+            const list = document.getElementById('news-list');
+            
+//            const defaultNews = [
+//                { tieu_de: "CỰU CHIẾN BINH PHƯỜNG NINH KIỀU CHÍNH TRANG KHU MỘ MẸ ANH HÙNG LLVT NHÂN DÂN PHAN NGỌC HIỂN", duong_dan: "#" },
+//                { tieu_de: "Ông Lê Quang Tùng giữ chức Bí thư Tỉnh ủy An Giang", duong_dan: "#" },
+//                { tieu_de: "Ấm áp Chương trình 'Bữa cơm cùng mẹ' nhân ngày Thương binh - Liệt sĩ 27/7", duong_dan: "#" },
+//                { tieu_de: "THÀNH LẬP CÁC CHI HỘI CHI ĐOÀN VÀ CÔNG TÁC NHÂN SỰ CÁC ĐOÀN THỂ KHU VỰC PHƯỜNG NINH KIỀU", duong_dan: "#" },
+//                { tieu_de: "Không tổ chức hội theo hệ thống từ Trung ương đến cơ sở khi không cần thiết", duong_dan: "#" }
+//            ];
+
+            const newsData = data && data.length ? data : defaultNews;
+            list.innerHTML = "";
+            newsData.forEach(n => {
+                list.innerHTML += `
+                <a href="${n.duong_dan}" target="_blank" class="block bg-white p-3 rounded-xl border border-slate-200 shadow-2xs hover:border-blue-300 transition-all">
+                    <div class="flex items-center gap-1.5 text-[9px] text-slate-400 font-bold mb-1">
+                        <i class="fa-regular fa-calendar"></i> 6/8/2026
+                    </div>
+                    <h3 class="text-xs font-bold text-slate-900 uppercase leading-snug flex items-start gap-1.5">
+                        <i class="fa-solid fa-bullhorn text-rose-500 mt-0.5 shrink-0"></i> <span>${n.tieu_de}</span>
+                    </h3>
+                </a>`;
+            });
+        }
+
+        // Hàm tự động bắn dữ liệu sang Google Sheets & Drive
+        async function syncToGoogle(recordData) {
+    try {
+        await fetch(GOOGLE_WEBHOOK_URL, {
+            method: "POST",
+            mode: "no-cors",
+            keepalive: true,
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
+            body: JSON.stringify({ record: recordData })
+        });
+        // Nghỉ 1 giây để đảm bảo đường truyền hoàn tất
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log("Đã gửi đồng bộ Google thành công!");
+    } catch (err) {
+        console.error("Lỗi gửi Google:", err);
+    }
+}
+    </script>
+</body>
+</html>
